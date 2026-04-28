@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if comprobante %}Editar{% else %}Crear{% endif %} {{ tipo_comprobante|title }} - AutoPartes ML</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+    <style>
+        .header-comprobante {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .card-comprobante {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .btn-add-product {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-add-product:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .product-row {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+        }
+        .totales-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+        .comprobante-proforma { border-left-color: #17a2b8; }
+        .comprobante-factura { border-left-color: #28a745; }
+        .comprobante-boleta { border-left-color: #ffc107; }
+        
+        .cliente-info {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-comprobante">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-file-invoice"></i>
+                        {% if comprobante %}Editar{% else %}Nueva{% endif %} 
+                        {{ tipo_comprobante|title }}
+                    </h1>
+                    <p class="mb-0 mt-2">
+                        {% if tipo_comprobante == 'proforma' %}
+                            Cotización sin valor fiscal
+                        {% elif tipo_comprobante == 'factura' %}
+                            Con RUC para empresas
+                        {% else %}
+                            Para consumidor final
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/comprobantes" class="btn btn-light">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <form id="comprobanteForm" method="POST">
+            <div class="row">
+                <!-- Datos del Cliente -->
+                <div class="col-lg-6">
+                    <div class="card card-comprobante mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Datos del Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tipo Documento</label>
+                                    <select name="cliente_tipo_doc" class="form-select" required>
+                                        <option value="DNI">DNI</option>
+                                        <option value="RUC">RUC</option>
+                                        <option value="CE">Carné Extranjería</option>
+                                        <option value="PAS">Pasaporte</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Número Documento</label>
+                                    <div class="input-group">
+                                        <input type="text" name="cliente_documento" class="form-control" 
+                                               placeholder="Ej: 12345678" required>
+                                        <button type="button" class="btn btn-outline-secondary" id="btnBuscarCliente">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="cliente-info" id="clienteInfo" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Nombre/Razón Social</label>
+                                        <input type="text" name="cliente_nombre" class="form-control" 
+                                               placeholder="Nombre completo o razón social" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="cliente_email" class="form-control" 
+                                               placeholder="cliente@email.com">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" name="cliente_telefono" class="form-control" 
+                                               placeholder="999 888 777">
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Dirección</label>
+                                        <textarea name="cliente_direccion" class="form-control" rows="2" 
+                                                  placeholder="Dirección completa"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos del Comprobante -->
+                <div class="col-lg-6">
+                    <div class="card card-comprobante mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-file-alt"></i> Datos del Comprobante</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Serie</label>
+                                    <input type="text" name="serie" class="form-control" 
+                                           value="{% if tipo_comprobante == 'factura' %}F001{% elif tipo_comprobante == 'boleta' %}B001{% else %}P001{% endif %}" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Número</label>
+                                    <input type="text" name="numero" class="form-control" 
+                                           value="{{ next_number or '00000001' }}" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fecha Emisión</label>
+                                    <input type="date" name="fecha_emision" class="form-control" 
+                                           value="{{ today }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fecha Vencimiento</label>
+                                    <input type="date" name="fecha_vencimiento" class="form-control">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Moneda</label>
+                                    <select name="moneda" class="form-select">
+                                        <option value="PEN">Soles (PEN)</option>
+                                        <option value="USD">Dólares (USD)</option>
+                                        <option value="EUR">Euros (EUR)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Observaciones</label>
+                                    <textarea name="observaciones" class="form-control" rows="3" 
+                                              placeholder="Comentarios adicionales..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <div class="card card-comprobante mb-4">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Productos</h5>
+                    <button type="button" class="btn btn-add-product btn-sm" id="btnAddProduct">
+                        <i class="fas fa-plus"></i> Agregar Producto
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="productosContainer">
+                        <!-- Los productos se agregan dinámicamente aquí -->
+                    </div>
+                    
+                    <div class="alert alert-info" id="noProductsAlert">
+                        <i class="fas fa-info-circle"></i> 
+                        No hay productos agregados. Haz clic en "Agregar Producto" para comenzar.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totales -->
+            <div class="row">
+                <div class="col-lg-8"></div>
+                <div class="col-lg-4">
+                    <div class="totales-section">
+                        <h5 class="text-center mb-3">
+                            <i class="fas fa-calculator"></i> Totales
+                        </h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span class="fw-bold" id="subtotalAmount">S/ 0.00</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>IGV (18%):</span>
+                            <span class="fw-bold" id="igvAmount">S/ 0.00</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Descuento:</span>
+                            <span class="fw-bold text-danger" id="descuentoAmount">S/ 0.00</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5>Total:</h5>
+                            <h5 class="text-primary" id="totalAmount">S/ 0.00</h5>
+                        </div>
+
+                        <input type="hidden" name="subtotal" id="subtotalInput">
+                        <input type="hidden" name="igv" id="igvInput">
+                        <input type="hidden" name="descuento" id="descuentoInput">
+                        <input type="hidden" name="total" id="totalInput">
+                        <input type="hidden" name="tipo_comprobante" value="{{ tipo_comprobante }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-secondary me-2" onclick="window.history.back()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-save"></i> 
+                        {% if comprobante %}Actualizar{% else %}Guardar{% endif %}
+                    </button>
+                    
+                    <button type="button" class="btn btn-info me-2" id="btnPreview">
+                        <i class="fas fa-eye"></i> Vista Previa
+                    </button>
+                    
+                    {% if tipo_comprobante == 'proforma' %}
+                    <button type="button" class="btn btn-success" id="btnConvertir">
+                        <i class="fas fa-exchange-alt"></i> Convertir a Factura/Boleta
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Template para fila de producto -->
+    <template id="productRowTemplate">
+        <div class="product-row comprobante-{{ tipo_comprobante }}" data-index="">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">Producto</label>
+                    <select name="productos[][id]" class="form-select product-select" required>
+                        <option value="">Seleccionar producto...</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" name="productos[][cantidad]" class="form-control product-quantity" 
+                           min="1" step="0.01" value="1" required>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Precio Unit.</label>
+                    <input type="number" name="productos[][precio]" class="form-control product-price" 
+                           min="0" step="0.01" required>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Descuento</label>
+                    <input type="number" name="productos[][descuento]" class="form-control product-discount" 
+                           min="0" step="0.01" value="0">
+                </div>
+                <div class="col-md-1 mb-2 text-center">
+                    <label class="form-label">Total</label>
+                    <div class="fw-bold product-total">S/ 0.00</div>
+                </div>
+                <div class="col-md-1 mb-2 text-center">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-danger btn-sm remove-product" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    
+    <script>
+        let productIndex = 0;
+        let productosData = [];
+
+        $(document).ready(function() {
+            // Cargar productos del inventario
+            loadProductos();
+            
+            // Mostrar info del cliente al escribir documento
+            $('input[name="cliente_documento"]').on('input', function() {
+                if ($(this).val().length > 0) {
+                    $('#clienteInfo').slideDown();
+                }
+            });
+
+            // Agregar producto
+            $('#btnAddProduct').click(function() {
+                addProductRow();
+            });
+
+            // Buscar cliente
+            $('#btnBuscarCliente').click(function() {
+                buscarCliente();
+            });
+
+            // Submit form
+            $('#comprobanteForm').submit(function(e) {
+                e.preventDefault();
+                guardarComprobante();
+            });
+
+            // Preview
+            $('#btnPreview').click(function() {
+                generatePreview();
+            });
+
+            // Convertir proforma
+            $('#btnConvertir').click(function() {
+                convertirProforma();
+            });
+        });
+
+        function loadProductos() {
+            $.get('/api/productos', function(data) {
+                productosData = data;
+            });
+        }
+
+        function addProductRow() {
+            const template = document.getElementById('productRowTemplate');
+            const clone = template.content.cloneNode(true);
+            
+            // Actualizar índice
+            clone.querySelector('.product-row').dataset.index = productIndex;
+            
+            // Poblar select de productos
+            const select = clone.querySelector('.product-select');
+            productosData.forEach(producto => {
+                const option = document.createElement('option');
+                option.value = producto.id;
+                option.textContent = `${producto.codigo} - ${producto.nombre} (Stock: ${producto.stock})`;
+                option.dataset.precio = producto.precio_venta;
+                select.appendChild(option);
+            });
+
+            // Agregar al container
+            document.getElementById('productosContainer').appendChild(clone);
+            
+            // Inicializar Select2
+            $(`[data-index="${productIndex}"] .product-select`).select2({
+                placeholder: "Buscar producto...",
+                allowClear: true
+            });
+
+            // Event listeners para la nueva fila
+            setupProductRowEvents(productIndex);
+            
+            productIndex++;
+            updateNoProductsAlert();
+        }
+
+        function setupProductRowEvents(index) {
+            const row = $(`[data-index="${index}"]`);
+            
+            // Cambio de producto
+            row.find('.product-select').change(function() {
+                const precio = $(this).find(':selected').data('precio') || 0;
+                row.find('.product-price').val(precio);
+                calculateRowTotal(index);
+            });
+
+            // Cambios en cantidad, precio o descuento
+            row.find('.product-quantity, .product-price, .product-discount').on('input', function() {
+                calculateRowTotal(index);
+            });
+
+            // Eliminar producto
+            row.find('.remove-product').click(function() {
+                row.remove();
+                calculateTotals();
+                updateNoProductsAlert();
+            });
+        }
+
+        function calculateRowTotal(index) {
+            const row = $(`[data-index="${index}"]`);
+            const cantidad = parseFloat(row.find('.product-quantity').val()) || 0;
+            const precio = parseFloat(row.find('.product-price').val()) || 0;
+            const descuento = parseFloat(row.find('.product-discount').val()) || 0;
+            
+            const subtotal = cantidad * precio;
+            const total = subtotal - descuento;
+            
+            row.find('.product-total').text(`S/ ${total.toFixed(2)}`);
+            
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let subtotal = 0;
+            
+            $('.product-row').each(function() {
+                const row = $(this);
+                const cantidad = parseFloat(row.find('.product-quantity').val()) || 0;
+                const precio = parseFloat(row.find('.product-price').val()) || 0;
+                const descuento = parseFloat(row.find('.product-discount').val()) || 0;
+                
+                subtotal += (cantidad * precio) - descuento;
+            });
+            
+            const igv = subtotal * 0.18;
+            const total = subtotal + igv;
+            
+            // Actualizar display
+            $('#subtotalAmount').text(`S/ ${subtotal.toFixed(2)}`);
+            $('#igvAmount').text(`S/ ${igv.toFixed(2)}`);
+            $('#totalAmount').text(`S/ ${total.toFixed(2)}`);
+            
+            // Actualizar inputs hidden
+            $('#subtotalInput').val(subtotal.toFixed(2));
+            $('#igvInput').val(igv.toFixed(2));
+            $('#totalInput').val(total.toFixed(2));
+        }
+
+        function updateNoProductsAlert() {
+            const hasProducts = $('.product-row').length > 0;
+            $('#noProductsAlert').toggle(!hasProducts);
+        }
+
+        function buscarCliente() {
+            const documento = $('input[name="cliente_documento"]').val();
+            if (!documento) return;
+            
+            // Aquí integrarías con API de RENIEC/SUNAT
+            // Por ahora simulamos la búsqueda
+            $('input[name="cliente_nombre"]').val('Cliente encontrado automáticamente');
+        }
+
+        function guardarComprobante() {
+            const formData = new FormData(document.getElementById('comprobanteForm'));
+            
+            $.ajax({
+                url: window.location.href,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Comprobante guardado exitosamente');
+                        window.location.href = '/comprobantes';
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error al guardar el comprobante');
+                }
+            });
+        }
+
+        function generatePreview() {
+            // Abrir ventana de preview
+            const formData = new FormData(document.getElementById('comprobanteForm'));
+            const url = `/comprobantes/preview?tipo={{ tipo_comprobante }}`;
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            form.target = '_blank';
+            
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        function convertirProforma() {
+            if (confirm('¿Deseas convertir esta proforma a factura o boleta?')) {
+                const tipo = prompt('Escribe "factura" o "boleta":');
+                if (tipo === 'factura' || tipo === 'boleta') {
+                    window.location.href = `/comprobantes/convertir/{{ comprobante.id if comprobante else 'nuevo' }}?tipo=${tipo}`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

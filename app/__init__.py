@@ -1,7 +1,6 @@
 import os
 import sys
-from flask import redirect, url_for
-from flask import Flask
+from flask import redirect, url_for, Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -48,55 +47,58 @@ def create_app(config_name='default'):
     
     # Registrar blueprints
     with app.app_context():
+        # Blueprints existentes
         try:
-            # Intentar importar y registrar blueprints
-            try:
-                from app.controllers.auth_controller import auth_bp
-                app.register_blueprint(auth_bp)
-                print("Blueprint auth_bp registrado correctamente")
-            except ImportError as e:
-                print(f"Error al registrar auth_bp: {e}")
+            from app.controllers.auth_controller import auth_bp
+            app.register_blueprint(auth_bp)
+            print("Blueprint auth_bp registrado correctamente")
+        except ImportError as e:
+            print(f"Error al registrar auth_bp: {e}")
+        
+        try:
+            from app.controllers.ventas_controller import ventas_bp
+            app.register_blueprint(ventas_bp)
+            print("Blueprint ventas_bp registrado correctamente")
+        except ImportError as e:
+            print(f"Error al registrar ventas_bp: {e}")
+        
+        try:
+            from app.controllers.inventario_controller import inventario_bp
+            app.register_blueprint(inventario_bp)
+            print("Blueprint inventario_bp registrado correctamente")
+        except ImportError as e:
+            print(f"Error al registrar inventario_bp: {e}")
+        
+        try:
+            from app.controllers.ml_controller import ml_bp
+            app.register_blueprint(ml_bp)
+            print("Blueprint ml_bp registrado correctamente")
+        except ImportError as e:
+            print(f"Error al registrar ml_bp: {e}")
+        
+        try:
+            from app.controllers.dashboard_controller import dashboard_bp
+            app.register_blueprint(dashboard_bp)
+            print("Blueprint dashboard_bp registrado correctamente")
+        except ImportError as e:
+            print(f"Error al registrar dashboard_bp: {e}")
+        
+        # ✅ IMPORTANTE: IMPORTAR Y REGISTRAR COMPROBANTES
+        print("🔍 Intentando importar comprobante_controller...")
+        try:
+            from app.controllers.comprobante_controller import comprobante_bp
+            print("✅ Import exitoso de comprobante_controller")
             
-            try:
-                from app.controllers.ventas_controller import ventas_bp
-                app.register_blueprint(ventas_bp)
-                print("Blueprint ventas_bp registrado correctamente")
-            except ImportError as e:
-                print(f"Error al registrar ventas_bp: {e}")
+            app.register_blueprint(comprobante_bp)
+            print("✅ Blueprint comprobante_bp registrado correctamente")
             
-            try:
-                from app.controllers.inventario_controller import inventario_bp
-                app.register_blueprint(inventario_bp)
-                print("Blueprint inventario_bp registrado correctamente")
-            except ImportError as e:
-                print(f"Error al registrar inventario_bp: {e}")
-            
-            try:
-                from app.controllers.ml_controller import ml_bp
-                app.register_blueprint(ml_bp)
-                print("Blueprint ml_bp registrado correctamente")
-            except ImportError as e:
-                print(f"Error al registrar ml_bp: {e}")
-            
-            try:
-                from app.controllers.dashboard_controller import dashboard_bp
-                app.register_blueprint(dashboard_bp)
-                print("Blueprint dashboard_bp registrado correctamente")
-            except ImportError as e:
-                print(f"Error al registrar dashboard_bp: {e}")
-                
-            @app.route('/')
-            def index():
-            # Redirigir a la página de login en lugar de mostrar un mensaje
-                return redirect(url_for('auth.login')) 
-            
-        except Exception as e:
-            print(f"Error general al configurar la aplicación: {e}")
-            
-            # Ruta de fallback si hay errores
-            @app.route('/')
-            def index_fallback():
-                return "Aplicación en modo fallback. Hubo errores al configurar la aplicación."
+        except ImportError as e:
+            print(f"❌ Error al importar comprobante_controller: {e}")
+        
+        # Ruta principal
+        @app.route('/')
+        def index():
+            return redirect(url_for('auth.login'))
     
     # Crear directorio para modelos ML si no existe
     os.makedirs(os.path.join(app.instance_path, 'ml_models'), exist_ok=True)

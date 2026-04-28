@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Previa - {{ comprobante.tipo|title }} - AutoPartes ML</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .preview-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .preview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .comprobante-paper {
+            padding: 40px;
+            min-height: 600px;
+        }
+        .empresa-header {
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .comprobante-info {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .cliente-box {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .totales-preview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 5px solid #28a745;
+        }
+        .preview-actions {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            color: rgba(255, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 1;
+            pointer-events: none;
+        }
+        @media print {
+            .preview-header, .preview-actions { display: none !important; }
+            .preview-container { 
+                box-shadow: none; 
+                border-radius: 0;
+                margin: 0;
+                max-width: none;
+            }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- Header de Vista Previa -->
+        <div class="preview-header">
+            <h2><i class="fas fa-eye"></i> Vista Previa</h2>
+            <p class="mb-0">Esta es una simulación de cómo se verá tu {{ comprobante.tipo }}</p>
+        </div>
+
+        <!-- Contenido del Comprobante -->
+        <div class="comprobante-paper position-relative">
+            <!-- Marca de agua -->
+            <div class="watermark">PREVIEW</div>
+
+            <!-- Encabezado de la Empresa -->
+            <div class="empresa-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h1 class="text-primary mb-2">
+                            <i class="fas fa-building"></i> AutoPartes ML
+                        </h1>
+                        <p class="mb-1"><strong>RUC:</strong> 20123456789</p>
+                        <p class="mb-1"><strong>Dirección:</strong> Av. Principal 123, Lima, Perú</p>
+                        <p class="mb-1"><strong>Teléfono:</strong> (01) 234-5678</p>
+                        <p class="mb-0"><strong>Email:</strong> ventas@autopartesml.com</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h2 class="text-uppercase text-primary">{{ comprobante.tipo }}</h2>
+                        <div class="fs-3 text-dark">{{ comprobante.serie }}-{{ comprobante.numero }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Comprobante -->
+            <div class="comprobante-info">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Fecha de Emisión:</strong> {{ comprobante.fecha_emision }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Moneda:</strong> {{ comprobante.moneda }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos del Cliente -->
+            <div class="cliente-box">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-user"></i> Datos del Cliente
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>{{ comprobante.cliente_tipo_doc }}:</strong> {{ comprobante.cliente_documento }}</p>
+                        <p class="mb-1"><strong>Nombre:</strong> {{ comprobante.cliente_nombre }}</p>
+                        {% if comprobante.cliente_email %}
+                        <p class="mb-1"><strong>Email:</strong> {{ comprobante.cliente_email }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if comprobante.cliente_telefono %}
+                        <p class="mb-1"><strong>Teléfono:</strong> {{ comprobante.cliente_telefono }}</p>
+                        {% endif %}
+                        {% if comprobante.cliente_direccion %}
+                        <p class="mb-1"><strong>Dirección:</strong> {{ comprobante.cliente_direccion }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <div class="table-responsive table-preview">
+                <table class="table table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Modelo</th>
+                            <th class="text-end">Precio Unit.</th>
+                            <th class="text-end">Descuento</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td class="text-center">{{ producto.cantidad }}</td>
+                            <td>
+                                <strong>Producto #{{ producto.producto_id }}</strong>
+                                <br><small class="text-muted">Código del producto</small>
+                            </td>
+                            <td class="text-end">S/ {{ "%.2f"|format(producto.precio) }}</td>
+                            <td class="text-end">
+                                {% if producto.descuento > 0 %}
+                                    <span class="text-danger">-S/ {{ "%.2f"|format(producto.descuento) }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <strong>S/ {{ "%.2f"|format((producto.cantidad * producto.precio) - producto.descuento) }}</strong>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="fas fa-box-open fa-2x mb-2"></i>
+                                <br>No hay productos agregados en la vista previa
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales -->
+            <div class="row">
+                <div class="col-lg-8"></div>
+                <div class="col-lg-4">
+                    <div class="totales-preview">
+                        <h5 class="text-center mb-3">
+                            <i class="fas fa-calculator"></i> Totales
+                        </h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong>S/ {{ "%.2f"|format(comprobante.subtotal) }}</strong>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>IGV (18%):</span>
+                            <strong>S/ {{ "%.2f"|format(comprobante.igv) }}</strong>
+                        </div>
+                        
+                        {% if comprobante.descuento > 0 %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Descuento:</span>
+                            <strong class="text-danger">-S/ {{ "%.2f"|format(comprobante.descuento) }}</strong>
+                        </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <h5>TOTAL:</h5>
+                            <h5 class="text-success">S/ {{ "%.2f"|format(comprobante.total) }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            {% if comprobante.observaciones %}
+            <div class="mt-4">
+                <h6>Observaciones:</h6>
+                <p class="text-muted">{{ comprobante.observaciones }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Footer -->
+            <div class="mt-5 text-center">
+                <hr>
+                <p class="text-muted small">
+                    Este documento es una vista previa y no tiene valor fiscal.
+                    <br>
+                    AutoPartes ML - Sistema de Gestión de Comprobantes
+                </p>
+            </div>
+        </div>
+
+        <!-- Acciones de Vista Previa -->
+        <div class="preview-actions">
+            <div class="row">
+                <div class="col-md-12">
+                    <button onclick="window.print()" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-print"></i> Imprimir Vista Previa
+                    </button>
+                    
+                    <button onclick="window.close()" class="btn btn-secondary btn-lg me-3">
+                        <i class="fas fa-times"></i> Cerrar Vista Previa
+                    </button>
+                    
+                    <button onclick="guardarYContinuar()" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Guardar Comprobante
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Nota:</strong> Esta es solo una vista previa. 
+                        Para generar el comprobante oficial, haz clic en "Guardar Comprobante".
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function guardarYContinuar() {
+            if (confirm('¿Deseas guardar este comprobante?')) {
+                // Comunicar con la ventana padre para guardar
+                if (window.opener) {
+                    window.opener.postMessage({
+                        action: 'guardar_comprobante',
+                        tipo: '{{ comprobante.tipo }}'
+                    }, '*');
+                    window.close();
+                } else {
+                    alert('Error: No se puede comunicar con la ventana principal');
+                }
+            }
+        }
+
+        // Escuchar mensajes del padre
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'comprobante_guardado') {
+                alert('Comprobante guardado exitosamente');
+                window.close();
+            }
+        });
+
+        // Prevenir cierre accidental
+        window.addEventListener('beforeunload', function(e) {
+            if (window.opener) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Auto-focus en el botón de imprimir
+        window.addEventListener('load', function() {
+            document.querySelector('.btn-primary').focus();
+        });
+    </script>
+</body>
+</html>

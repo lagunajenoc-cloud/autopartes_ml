@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-{% if comprobante.tipo == 'proforma' %}file-contract{% elif comprobante.tipo == 'factura' %}file-invoice-dollar{% else %}receipt{% endif %}"></i>
+                    {{ comprobante.tipo|title }} {{ comprobante.numero }}
+                </h1>
+                <div class="btn-group">
+                    <a href="{{ url_for('comprobantes.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    {% if comprobante.tipo == 'proforma' and comprobante.estado == 'pendiente' %}
+                        <a href="{{ url_for('comprobantes.editar_comprobante', id=comprobante.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('comprobantes.generar_pdf', id=comprobante.id) }}" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Información del Comprobante -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-file-alt"></i> Información del Comprobante</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Tipo:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if comprobante.tipo == 'proforma' %}info{% elif comprobante.tipo == 'factura' %}success{% else %}warning{% endif %} fs-6">
+                                            {{ comprobante.tipo|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Número:</strong></td>
+                                    <td>{{ comprobante.numero }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha Emisión:</strong></td>
+                                    <td>{{ comprobante.fecha_emision.strftime('%d/%m/%Y %H:%M') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if comprobante.estado == 'pendiente' %}warning{% elif comprobante.estado == 'aprobado' %}success{% elif comprobante.estado == 'facturado' %}info{% else %}secondary{% endif %} fs-6">
+                                            {{ comprobante.estado|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Usuario:</strong></td>
+                                    <td>{{ comprobante.usuario.username if comprobante.usuario else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Cliente -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Datos del Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Nombre:</strong></td>
+                                    <td>{{ comprobante.cliente_nombre }}</td>
+                                </tr>
+                                {% if comprobante.cliente_documento %}
+                                <tr>
+                                    <td><strong>Documento:</strong></td>
+                                    <td>{{ comprobante.cliente_documento }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if comprobante.cliente_email %}
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>{{ comprobante.cliente_email }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if comprobante.cliente_telefono %}
+                                <tr>
+                                    <td><strong>Teléfono:</strong></td>
+                                    <td>{{ comprobante.cliente_telefono }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if comprobante.cliente_direccion %}
+                                <tr>
+                                    <td><strong>Dirección:</strong></td>
+                                    <td>{{ comprobante.cliente_direccion }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Productos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio Unit.</th>
+                                    <th class="text-end">Descuento</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detalle in comprobante.detalles %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ detalle.producto.codigo if detalle.producto else 'Producto #' + detalle.producto_id|string }}</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ detalle.producto.categoria if detalle.producto else '' }} - 
+                                                {{ detalle.producto.modelo_carro if detalle.producto else '' }}
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">{{ detalle.cantidad }}</td>
+                                    <td class="text-end">S/ {{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                                    <td class="text-end">
+                                        {% if detalle.descuento_porcentaje > 0 %}
+                                            {{ detalle.descuento_porcentaje }}%
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end"><strong>S/ {{ "%.2f"|format(detalle.subtotal) }}</strong></td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">
+                                        <i class="fas fa-box-open fa-2x mb-2"></i>
+                                        <br>No hay productos en este comprobante
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totales -->
+            <div class="row">
+                <div class="col-lg-8">
+                    {% if comprobante.observaciones %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-comment"></i> Observaciones</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">{{ comprobante.observaciones }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-calculator"></i> Totales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <strong>S/ {{ "%.2f"|format(comprobante.subtotal) }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IGV ({{ comprobante.igv_porcentaje or 18 }}%):</span>
+                                <strong>S/ {{ "%.2f"|format(comprobante.igv_monto) }}</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <h5>TOTAL:</h5>
+                                <h5 class="text-primary">S/ {{ "%.2f"|format(comprobante.total) }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            {% if comprobante.tipo == 'proforma' and comprobante.estado == 'pendiente' %}
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-cogs"></i> Acciones</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form method="POST" action="{{ url_for('comprobantes.convertir_proforma', id=comprobante.id) }}" class="d-inline">
+                                <input type="hidden" name="tipo_destino" value="factura">
+                                <button type="submit" class="btn btn-success btn-lg w-100" onclick="return confirm('¿Convertir esta proforma a factura?')">
+                                    <i class="fas fa-file-invoice-dollar"></i> Convertir a Factura
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="POST" action="{{ url_for('comprobantes.convertir_proforma', id=comprobante.id) }}" class="d-inline">
+                                <input type="hidden" name="tipo_destino" value="boleta">
+                                <button type="submit" class="btn btn-warning btn-lg w-100" onclick="return confirm('¿Convertir esta proforma a boleta?')">
+                                    <i class="fas fa-receipt"></i> Convertir a Boleta
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if comprobante.estado != 'anulado' %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('comprobantes.anular_comprobante', id=comprobante.id) }}" class="d-inline">
+                        <div class="row align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label">Motivo de anulación:</label>
+                                <input type="text" name="motivo" class="form-control" placeholder="Escriba el motivo..." required>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Está seguro de anular este comprobante?')">
+                                    <i class="fas fa-ban"></i> Anular Comprobante
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

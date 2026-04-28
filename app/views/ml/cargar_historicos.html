@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4><i class="fas fa-history"></i> Cargar Datos Históricos AutoPartes</h4>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> Sistema Optimizado para tu Excel</h6>
+                        <p><strong>✅ Detecta automáticamente</strong> columnas de tu archivo</p>
+                        <p><strong>✅ Características ML avanzadas</strong> incluidas</p>
+                        <p><strong>✅ Listo para entrenamiento</strong> directo</p>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.archivo_historicos.label(class="form-label") }}
+                            {{ form.archivo_historicos(class="form-control") }}
+                            {% if form.archivo_historicos.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.archivo_historicos.errors %}
+                                        <small>{{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Sube tu archivo <strong>ventas_historicos.xlsx</strong> con 1,000 registros
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                        </div>
+                    </form>
+                    
+                    <!-- Características detectadas en tu Excel -->
+                    <div class="mt-4">
+                        <h6>🎯 Características ML que tu Excel incluye:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">✅ <strong>Características cíclicas:</strong> Mes_Seno, Mes_Coseno</li>
+                                    <li class="list-group-item">✅ <strong>Rangos de precio:</strong> Categorizados automáticamente</li>
+                                    <li class="list-group-item">✅ <strong>Frecuencia de productos:</strong> Análisis de demanda</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">✅ <strong>Indicadores temporales:</strong> Fin de semana, inicio/fin de mes</li>
+                                    <li class="list-group-item">✅ <strong>Características día:</strong> Seno/Coseno semana</li>
+                                    <li class="list-group-item">✅ <strong>Trimestres:</strong> Análisis estacional</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formato esperado -->
+                    <div class="mt-4">
+                        <h6>📋 Estructura detectada automáticamente:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Código de Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>venta_total</th>
+                                        <th>Características ML...</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2024-01-06</td>
+                                        <td>NISSAN AD</td>
+                                        <td>FARO POSTERIOR</td>
+                                        <td>2</td>
+                                        <td>59</td>
+                                        <td>118</td>
+                                        <td>+14 características</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Flujo después de cargar -->
+                    <div class="mt-4">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> ¿Qué pasará después de cargar?</h6>
+                            <ol>
+                                <li><strong>Procesamiento automático</strong> - El sistema mapea tus columnas</li>
+                                <li><strong>Creación de productos</strong> - Se crean automáticamente productos faltantes</li>
+                                <li><strong>Inserción en BD</strong> - Tus 1,000 registros se guardan seguramente</li>
+                                <li><strong>Listo para entrenar</strong> - Podrás entrenar el modelo inmediatamente</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de navegación -->
+                    <div class="mt-4 d-flex gap-2">
+                        <a href="{{ url_for('ml.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                        <a href="{{ url_for('ml.entrenamiento') }}" class="btn btn-primary">
+                            <i class="fas fa-brain"></i> Ir a Entrenamiento
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

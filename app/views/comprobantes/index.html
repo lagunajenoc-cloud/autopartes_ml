@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block title %}Comprobantes - AutoPartes ML{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-invoice"></i> Comprobantes</h1>
+                <div class="btn-group">
+                    <a href="/comprobantes/nuevo/proforma" class="btn btn-info">
+                        <i class="fas fa-plus"></i> Nueva Proforma
+                    </a>
+                    <a href="/comprobantes/nuevo/factura" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Nueva Factura
+                    </a>
+                    <a href="/comprobantes/nuevo/boleta" class="btn btn-warning">
+                        <i class="fas fa-plus"></i> Nueva Boleta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center border-info">
+                        <div class="card-body">
+                            <i class="fas fa-file-contract fa-2x text-info mb-2"></i>
+                            <h5 class="card-title text-info">Proformas</h5>
+                            <h2 class="text-info">{{ total_proformas or 0 }}</h2>
+                            <small class="text-muted">Cotizaciones sin valor fiscal</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center border-success">
+                        <div class="card-body">
+                            <i class="fas fa-file-invoice-dollar fa-2x text-success mb-2"></i>
+                            <h5 class="card-title text-success">Facturas</h5>
+                            <h2 class="text-success">{{ total_facturas or 0 }}</h2>
+                            <small class="text-muted">Con RUC para empresas</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center border-warning">
+                        <div class="card-body">
+                            <i class="fas fa-receipt fa-2x text-warning mb-2"></i>
+                            <h5 class="card-title text-warning">Boletas</h5>
+                            <h2 class="text-warning">{{ total_boletas or 0 }}</h2>
+                            <small class="text-muted">Para consumidor final</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de comprobantes -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Comprobantes Recientes</h5>
+                </div>
+                <div class="card-body">
+                    {% if comprobantes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Número</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comprobante in comprobantes %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{% if comprobante.tipo == 'proforma' %}info{% elif comprobante.tipo == 'factura' %}success{% else %}warning{% endif %}">
+                                            {{ comprobante.tipo|title }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ comprobante.numero }}</strong></td>
+                                    <td>{{ comprobante.cliente_nombre }}</td>
+                                    <td>{{ comprobante.fecha_emision.strftime('%d/%m/%Y') if comprobante.fecha_emision else 'N/A' }}</td>
+                                    <td class="text-end"><strong>S/ {{ "%.2f"|format(comprobante.total or 0) }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if comprobante.estado == 'pendiente' %}warning{% elif comprobante.estado == 'aprobado' %}success{% elif comprobante.estado == 'facturado' %}info{% else %}secondary{% endif %}">
+                                            {{ comprobante.estado|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="/comprobantes/ver/{{ comprobante.id }}" class="btn btn-outline-primary btn-sm" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if comprobante.tipo == 'proforma' and comprobante.estado == 'pendiente' %}
+                                            <a href="/comprobantes/editar/{{ comprobante.id }}" class="btn btn-outline-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% endif %}
+                                            <a href="/comprobantes/pdf/{{ comprobante.id }}" class="btn btn-outline-danger btn-sm" title="PDF" target="_blank">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay comprobantes registrados</h4>
+                        <p class="text-muted mb-4">Comienza creando tu primera proforma, factura o boleta</p>
+                        <a href="/comprobantes/nuevo/proforma" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Crear Primer Comprobante
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Estado del Sistema -->
+            <div class="alert alert-success mt-4">
+                <div class="row align-items-center">
+                    <div class="col-1 text-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <div class="col-11">
+                        <h5 class="alert-heading mb-1">¡Sistema de Comprobantes Funcionando!</h5>
+                        <p class="mb-0">
+                            El módulo de comprobantes está operativo. Puedes crear proformas, facturas y boletas.
+                            Los datos se integran automáticamente con tu inventario y sistema de ventas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Confirmar eliminaciones
+    $('.btn-danger').on('click', function(e) {
+        if (!confirm('¿Estás seguro de realizar esta acción?')) {
+            e.preventDefault();
+        }
+    });
+    
+    // Auto-refresh cada 30 segundos
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+{% endblock %}

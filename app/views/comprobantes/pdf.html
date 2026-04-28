@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ comprobante.tipo|title }} {{ comprobante.numero }}</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            font-size: 12px;
+        }
+        .header { 
+            text-align: center; 
+            border-bottom: 2px solid #333; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px;
+        }
+        .company { 
+            color: #007bff; 
+            font-size: 24px; 
+            font-weight: bold; 
+        }
+        .doc-type { 
+            font-size: 18px; 
+            margin: 10px 0; 
+            font-weight: bold;
+        }
+        .client-info, .company-info { 
+            margin: 20px 0; 
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+        }
+        .products-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+        }
+        .products-table th, .products-table td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        .products-table th { 
+            background: #f8f9fa; 
+            font-weight: bold;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .totals { 
+            float: right; 
+            width: 300px; 
+            margin-top: 20px; 
+            background: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        .total-line { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 5px 0; 
+        }
+        .total-final { 
+            font-weight: bold; 
+            font-size: 16px; 
+            border-top: 2px solid #333; 
+            padding-top: 10px; 
+        }
+        .footer {
+            clear: both;
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+        .estado {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border: 2px solid;
+            font-weight: bold;
+        }
+        .estado.pendiente { color: #ffc107; border-color: #ffc107; }
+        .estado.aprobado { color: #28a745; border-color: #28a745; }
+        .estado.facturado { color: #17a2b8; border-color: #17a2b8; }
+        .estado.anulado { color: #dc3545; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Estado del comprobante -->
+    <div class="estado {{ comprobante.estado }}">
+        {{ comprobante.estado|upper }}
+    </div>
+
+    <!-- ✅ DATOS DE LA EMPRESA ACTUALIZADOS -->
+    <div class="header">
+        <div class="company">AutoPartes "MAYUMI"</div>
+        <div>RUC: 10465713688 | Av. Las Fraguas N°105 Int 67,68,69,17</div>
+        <div>Teléfono: 942500153 / 951229616 | Email: AUTOPARTESMAYUMI@GMAIL.COM</div>
+        <div class="doc-type">{{ comprobante.tipo|upper }} {{ comprobante.numero }}</div>
+    </div>
+
+    <!-- Información del comprobante -->
+    <div class="info-section">
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <strong>Fecha de Emisión:</strong> {{ comprobante.fecha_emision.strftime('%d/%m/%Y %H:%M') if comprobante.fecha_emision else 'N/A' }}
+            </div>
+            <div>
+                <strong>Usuario:</strong> {{ comprobante.usuario.username if comprobante.usuario else 'Sistema' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Datos del cliente -->
+    <div class="client-info">
+        <h3>DATOS DEL CLIENTE:</h3>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; width: 50%;"><strong>Nombre/Razón Social:</strong> {{ comprobante.cliente_nombre }}</td>
+                <td style="border: none; width: 50%;">
+                    {% if comprobante.cliente_documento %}
+                        <strong>Documento:</strong> {{ comprobante.cliente_documento }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% if comprobante.cliente_email or comprobante.cliente_telefono %}
+            <tr>
+                <td style="border: none;">
+                    {% if comprobante.cliente_email %}
+                        <strong>Email:</strong> {{ comprobante.cliente_email }}
+                    {% endif %}
+                </td>
+                <td style="border: none;">
+                    {% if comprobante.cliente_telefono %}
+                        <strong>Teléfono:</strong> {{ comprobante.cliente_telefono }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% if comprobante.cliente_direccion %}
+            <tr>
+                <td colspan="2" style="border: none;">
+                    <strong>Dirección:</strong> {{ comprobante.cliente_direccion }}
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- Tabla de productos -->
+    <table class="products-table">
+        <thead>
+            <tr>
+                <th class="text-center">Cant.</th>
+                <th>Descripción</th>
+                <th class="text-right">Precio Unit.</th>
+                <th class="text-center">Desc. %</th>
+                <th class="text-right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in comprobante.detalles %}
+            <tr>
+                <td class="text-center">{{ detalle.cantidad }}</td>
+                <td>
+                    <strong>{{ detalle.producto.codigo if detalle.producto else 'Producto #' + detalle.producto_id|string }}</strong>
+                    {% if detalle.producto %}
+                        <br><small>{{ detalle.producto.categoria }} - {{ detalle.producto.modelo_carro }}</small>
+                        {% if detalle.producto.descripcion %}
+                            <br><small>{{ detalle.producto.descripcion }}</small>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="text-right">S/ {{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                <td class="text-center">
+                    {% if detalle.descuento_porcentaje > 0 %}
+                        {{ "%.1f"|format(detalle.descuento_porcentaje) }}%
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="text-right"><strong>S/ {{ "%.2f"|format(detalle.subtotal) }}</strong></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center" style="padding: 20px; color: #666;">
+                    No hay productos registrados en este comprobante
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totales -->
+    <div class="totals">
+        <div class="total-line">
+            <span>Subtotal:</span>
+            <span>S/ {{ "%.2f"|format(comprobante.subtotal) }}</span>
+        </div>
+        <div class="total-line">
+            <span>IGV ({{ comprobante.igv_porcentaje or 18 }}%):</span>
+            <span>S/ {{ "%.2f"|format(comprobante.igv_monto) }}</span>
+        </div>
+        <div class="total-line total-final">
+            <span>TOTAL:</span>
+            <span>S/ {{ "%.2f"|format(comprobante.total) }}</span>
+        </div>
+    </div>
+
+    <!-- Observaciones -->
+    {% if comprobante.observaciones %}
+    <div style="clear: both; margin-top: 30px;">
+        <h4>OBSERVACIONES:</h4>
+        <p style="background: #f8f9fa; padding: 10px; border-left: 4px solid #007bff;">
+            {{ comprobante.observaciones }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Condiciones de pago -->
+    {% if comprobante.condiciones_pago %}
+    <div style="margin-top: 20px;">
+        <strong>Condiciones de Pago:</strong> {{ comprobante.condiciones_pago }}
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <hr>
+        <p>
+            <!-- ✅ NOMBRE DE LA EMPRESA ACTUALIZADO EN EL FOOTER -->
+            Este documento ha sido generado electrónicamente por AutoPartes "MAYUMI"<br>
+            {% if comprobante.tipo == 'proforma' %}
+                <strong>NOTA: Esta proforma no tiene valor fiscal hasta ser convertida a factura o boleta</strong>
+            {% endif %}
+        </p>
+        <!-- ✅ FECHA AUTOMÁTICA AL IMPRIMIR O VISUALIZAR -->
+        <p><small>Impreso el: <span id="fechaImpresion"></span></small></p>
+    </div>
+
+    <script>
+        // Script para poner la fecha actual automáticamente
+        var now = new Date();
+        var dia = now.getDate();
+        var mes = now.getMonth() + 1;
+        var year = now.getFullYear();
+        var horas = now.getHours();
+        var minutos = now.getMinutes();
+        
+        // Formato DD/MM/YYYY HH:MM
+        var fechaFormateada = dia + '/' + mes + '/' + year + ' ' + horas + ':' + (minutos < 10 ? '0' : '') + minutos;
+        document.getElementById('fechaImpresion').textContent = fechaFormateada;
+    </script>
+</body>
+</html>
+

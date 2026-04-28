@@ -69,12 +69,12 @@
                 <tbody>
                     {% for venta, producto in ventas %}
                     <tr>
-                        <td>{{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') if venta.fecha_venta else 'N/A' }}</td>
                         <td>
                             {% if producto %}
-                                {% if hasattr(producto, 'codigo') %}{{ producto.codigo }}{% endif %}
-                                {% if hasattr(producto, 'modelo_carro') %} - {{ producto.modelo_carro }}{% endif %}
-                                {% if hasattr(producto, 'categoria') %}
+                                {{ producto.codigo if producto.codigo else '' }}
+                                {% if producto.modelo_carro %} - {{ producto.modelo_carro }}{% endif %}
+                                {% if producto.categoria %}
                                 <span class="badge bg-secondary">{{ producto.categoria }}</span>
                                 {% endif %}
                             {% else %}

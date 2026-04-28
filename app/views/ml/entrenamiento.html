@@ -1,6 +1,32 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
+<!-- ✅ NUEVA SECCIÓN: Botón para cargar Excel histórico -->
+<div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0"><i class="fas fa-file-excel me-2"></i>¿Tienes Datos Históricos en Excel?</h6>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <p class="mb-2"><strong>Mejora la precisión de tu modelo</strong> cargando datos históricos desde Excel.</p>
+                        <small class="text-muted">Sube archivos con ventas históricas para entrenar un modelo más preciso.</small>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('ml.cargar_historicos') }}" class="btn btn-success w-100">
+                            <i class="fas fa-upload me-2"></i>Cargar Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECCIÓN ORIGINAL: Formulario de entrenamiento -->
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="card dashboard-card">
@@ -48,6 +74,7 @@
                             <li>Se recomienda utilizar al menos 6 meses de datos históricos para un mejor entrenamiento.</li>
                             <li>El entrenamiento puede tomar varios minutos dependiendo del volumen de datos.</li>
                             <li>Si el modelo ya existe, se sobrescribirá con la nueva versión entrenada.</li>
+                            <li><strong class="text-success">💡 Si cargaste datos desde Excel, el modelo usará características avanzadas automáticamente.</strong></li>
                         </ul>
                     </div>
                     
@@ -98,10 +125,23 @@
                             <li><strong>Producto:</strong> categoría, modelo de carro, precio</li>
                             <li><strong>Ventas:</strong> histórico de ventas, medias móviles</li>
                             <li><strong>Inventario:</strong> stock actual, mínimo y óptimo</li>
+                            <li><strong class="text-success">✨ Avanzadas (si cargas Excel):</strong> características cíclicas, frecuencia de productos, rangos de precio</li>
                         </ul>
                         
                         <h6 class="fw-bold mt-3">Salida del modelo:</h6>
                         <p>El modelo generará predicciones de ventas para cada producto en diferentes horizontes temporales, lo que permitirá optimizar el inventario y mejorar la planificación.</p>
+                        
+                        <!-- ✅ NUEVA SECCIÓN: Información sobre Excel -->
+                        <div class="alert alert-success mt-3">
+                            <h6 class="fw-bold"><i class="fas fa-star me-2"></i>Modo Avanzado con Excel</h6>
+                            <p class="mb-0">Si cargas datos desde Excel, el modelo automáticamente utilizará características ML avanzadas como:</p>
+                            <ul class="mb-0 mt-2">
+                                <li>Características cíclicas (seno/coseno)</li>
+                                <li>Frecuencia de productos</li>
+                                <li>Rangos de precio categorizados</li>
+                                <li>Indicadores temporales avanzados</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -38,11 +38,19 @@ class Usuario(UserMixin, db.Model):
     
     def set_password(self, password):
         """Establecer contraseña encriptada."""
+        print(f"🔐 Estableciendo contraseña para usuario: {self.username}")
         self.password_hash = generate_password_hash(password)
+        print(f"✅ Hash generado: {self.password_hash[:20]}...")
     
     def check_password(self, password):
         """Verificar contraseña."""
-        return check_password_hash(self.password_hash, password)
+        print(f"🔍 Verificando contraseña para usuario: {self.username}")
+        print(f"📝 Password recibida: '{password}'")
+        print(f"🔒 Hash almacenado: {self.password_hash[:20]}...")
+        
+        result = check_password_hash(self.password_hash, password)
+        print(f"✅ Resultado verificación: {result}")
+        return result
     
     def is_admin(self):
         """Verificar si el usuario es administrador."""
@@ -52,6 +60,10 @@ class Usuario(UserMixin, db.Model):
         """Verificar si el usuario es vendedor."""
         return self.rol == 'vendedor'
     
+    def is_active(self):
+        """Flask-Login requiere este método para verificar si el usuario está activo."""
+        return self.activo
+    
     @classmethod
     def crear_usuario(cls, username, password, rol, email=None, nombre=None, apellido=None):
         """Crear un nuevo usuario."""
@@ -60,7 +72,8 @@ class Usuario(UserMixin, db.Model):
             email=email,
             nombre=nombre,
             apellido=apellido,
-            rol=rol
+            rol=rol,
+            activo=True
         )
         usuario.set_password(password)
         db.session.add(usuario)

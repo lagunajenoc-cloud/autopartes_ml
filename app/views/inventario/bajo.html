@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4><i class="fas fa-exclamation-triangle me-2"></i>Productos con Stock Bajo</h4>
+                </div>
+                <div class="card-body">
+                    {% if inventario %}
+                    <div class="alert alert-warning">
+                        <strong>{{ total_productos }}</strong> productos necesitan reposición urgente.
+                        Total faltante: <strong>{{ total_faltante }}</strong> unidades.
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Categoría</th>
+                                    <th>Modelo</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Faltante</th>
+                                    <th>Precio</th>
+                                    <th>Valor Faltante</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for producto, inv in inventario %}
+                                <tr>
+                                    <td><strong>{{ producto.codigo }}</strong></td>
+                                    <td><span class="badge bg-secondary">{{ producto.categoria }}</span></td>
+                                    <td>{{ producto.modelo_carro }}</td>
+                                    <td><span class="badge bg-danger">{{ inv.stock_actual }}</span></td>
+                                    <td>{{ inv.stock_minimo }}</td>
+                                    <td><strong class="text-danger">{{ inv.stock_minimo - inv.stock_actual }}</strong></td>
+                                    <td>S/ {{ "%.2f"|format(producto.precio_unitario) }}</td>
+                                    <td><strong>S/ {{ "%.2f"|format((inv.stock_minimo - inv.stock_actual) * producto.precio_unitario) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success">
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5>¡Excelente!</h5>
+                            <p>No hay productos con stock bajo en este momento.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+                        </a>
+                        {% if inventario %}
+                        <a href="{{ url_for('inventario.importar_inventario') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Reponer Stock
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

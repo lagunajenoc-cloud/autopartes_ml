@@ -1,0 +1,31 @@
+Error en Dashboard - 2025-06-11 00:19:25.005774
+Tipo: UndefinedError
+Mensaje: 'dict object' has no attribute 'precio_unitario'
+Traceback:
+Traceback (most recent call last):
+  File "d:\autopartes_ml\app\controllers\dashboard_controller.py", line 165, in index
+    return render_template(
+        'dashboard/index.html',
+    ...<9 lines>...
+        title='Dashboard'
+    )
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "d:\autopartes_ml\app\views\dashboard\index.html", line 1, in top-level template code
+    {% extends "layout.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\autopartes_ml\app\views\layout.html", line 79, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "d:\autopartes_ml\app\views\dashboard\index.html", line 158, in block 'content'
+    <td>{{ 'S/ {:.2f}'.format(item['excedente'] * item['precio_unitario']) }}</td>
+    
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'precio_unitario'
+

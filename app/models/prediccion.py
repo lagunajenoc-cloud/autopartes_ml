@@ -7,7 +7,7 @@ class Prediccion(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
-    cantidad_predicha = db.Column(db.Integer, nullable=False)
+    cantidad_predicha = db.Column(db.Integer, nullable=False)  # ✅ CORRECTO: coincide con BD
     fecha_inicio = db.Column(db.Date, nullable=False)
     fecha_fin = db.Column(db.Date, nullable=False)
     confianza = db.Column(db.Numeric(5, 2))
@@ -17,12 +17,18 @@ class Prediccion(db.Model):
     def __repr__(self):
         return f'<Predicción para Producto {self.producto_id} - Cantidad: {self.cantidad_predicha}>'
     
+    @property
+    def demanda_predicha(self):
+        """Alias para cantidad_predicha para mantener compatibilidad"""
+        return self.cantidad_predicha
+    
     def to_dict(self):
         """Convertir objeto a diccionario para API/JSON."""
         return {
             'id': self.id,
             'producto_id': self.producto_id,
             'cantidad_predicha': self.cantidad_predicha,
+            'demanda_predicha': self.cantidad_predicha,  # Alias para compatibilidad
             'fecha_inicio': self.fecha_inicio.isoformat(),
             'fecha_fin': self.fecha_fin.isoformat(),
             'confianza': float(self.confianza) if self.confianza else None,

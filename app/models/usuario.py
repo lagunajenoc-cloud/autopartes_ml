@@ -67,7 +67,6 @@ class Usuario(UserMixin, db.Model):
         db.session.commit()
         return usuario
 
-
 @login_manager.user_loader
 def load_user(id):
     """Función requerida por Flask-Login para cargar un usuario."""

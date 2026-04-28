@@ -5,7 +5,7 @@
     <a href="{{ url_for('inventario.nuevo_producto') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>Nuevo Producto
     </a>
-    <a href="{{ url_for('inventario.importar') }}" class="btn btn-outline-primary">
+    <a href="{{ url_for('inventario.importar_inventario') }}" class="btn btn-outline-primary">
         <i class="fas fa-file-import me-2"></i>Importar Inventario
     </a>
 </div>
@@ -51,7 +51,7 @@
     </div>
 </div>
 
-<!-- Vista rápida -->
+<!-- ✅ VISTA RÁPIDA CORREGIDA - USA ESTADÍSTICAS DEL CONTROLADOR -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card bg-light">
@@ -60,7 +60,7 @@
                     <i class="fas fa-boxes text-primary"></i>
                 </div>
                 <h5 class="card-title">Total Productos</h5>
-                <p class="card-text display-6">{{ inventario|length }}</p>
+                <p class="card-text display-6">{{ estadisticas.total_productos }}</p>
             </div>
         </div>
     </div>
@@ -71,9 +71,10 @@
                     <i class="fas fa-exclamation-circle text-danger"></i>
                 </div>
                 <h5 class="card-title">Stock Bajo</h5>
-                {% set stock_bajo_count = inventario|selectattr('1.stock_actual', 'le', '1.stock_minimo')|list|length %}
-                <p class="card-text display-6">{{ stock_bajo_count }}</p>
-                <a href="{{ url_for('inventario.inventario_bajo') }}" class="btn btn-sm btn-danger">Ver detalles</a>
+                <p class="card-text display-6">{{ estadisticas.stock_bajo }}</p>
+                {% if estadisticas.stock_bajo > 0 %}
+                    <a href="{{ url_for('inventario.inventario_bajo') }}" class="btn btn-sm btn-danger">Ver detalles</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -84,9 +85,10 @@
                     <i class="fas fa-chart-line text-success"></i>
                 </div>
                 <h5 class="card-title">Excedente</h5>
-                {% set excedente_count = inventario|selectattr('1.stock_actual', 'gt', '1.stock_optimo')|list|length %}
-                <p class="card-text display-6">{{ excedente_count }}</p>
-                <a href="{{ url_for('inventario.inventario_excedente') }}" class="btn btn-sm btn-success">Ver detalles</a>
+                <p class="card-text display-6">{{ estadisticas.excedente }}</p>
+                {% if estadisticas.excedente > 0 %}
+                    <a href="{{ url_for('inventario.inventario_excedente') }}" class="btn btn-sm btn-success">Ver detalles</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -94,8 +96,18 @@
 
 <!-- Listado de inventario -->
 <div class="card">
-    <div class="card-header bg-light">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">Inventario de Productos</h5>
+        {% if current_user.rol == 'admin' %}
+        <div class="btn-group">
+            <a href="{{ url_for('inventario.nuevo_producto') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Nuevo Producto
+            </a>
+            <a href="{{ url_for('inventario.importar_inventario') }}" class="btn btn-info btn-sm">
+                <i class="fas fa-file-import me-1"></i>Importar
+            </a>
+        </div>
+        {% endif %}
     </div>
     <div class="card-body">
         {% if inventario %}
@@ -113,41 +125,39 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for producto, inventario_item in inventario %}
+                    {% for item in inventario %}
                     <tr>
-                        <td>{{ producto.codigo }}</td>
-                        <td><span class="badge bg-secondary">{{ producto.categoria }}</span></td>
-                        <td>{{ producto.modelo_carro }}</td>
-                        <td>{{ 'S/ {:,.2f}'.format(producto.precio_unitario) }}</td>
-                        <td class="fw-bold">
-                            {% if inventario_item %}
-                                {{ inventario_item.stock_actual }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </td>
+                        <td>{{ item.codigo }}</td>
+                        <td><span class="badge bg-secondary">{{ item.categoria }}</span></td>
+                        <td>{{ item.modelo_carro }}</td>
+                        <td>{{ 'S/ {:,.2f}'.format(item.precio_unitario) }}</td>
+                        <td class="fw-bold">{{ item.stock_actual or 0 }}</td>
                         <td>
-                            {% if inventario_item %}
-                                {% if inventario_item.stock_actual <= inventario_item.stock_minimo %}
-                                    <span class="badge badge-stock bajo">Stock Bajo</span>
-                                {% elif inventario_item.stock_actual > inventario_item.stock_optimo %}
-                                    <span class="badge badge-stock excedente">Excedente</span>
+                            {% if hasattr(item, 'estado_color') %}
+                                <span class="badge bg-{{ item.estado_color }}">{{ item.estado_texto }}</span>
+                            {% else %}
+                                {% if item.stock_actual and item.stock_minimo and (item.stock_actual|int) <= (item.stock_minimo|int) %}
+                                    <span class="badge bg-danger">Stock Bajo</span>
+                                {% elif item.stock_actual and item.stock_optimo and (item.stock_actual|int) > (item.stock_optimo|int) %}
+                                    <span class="badge bg-warning">Excedente</span>
                                 {% else %}
-                                    <span class="badge badge-stock optimo">Óptimo</span>
+                                    <span class="badge bg-success">Óptimo</span>
                                 {% endif %}
-                            {% else %}
-                                <span class="badge badge-stock bajo">Sin stock</span>
                             {% endif %}
                         </td>
                         <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{{ url_for('inventario.editar_producto', producto_id=producto.id) }}" class="btn btn-primary" data-bs-toggle="tooltip" title="Editar Producto">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{{ url_for('inventario.editar_inventario', producto_id=producto.id) }}" class="btn btn-success" data-bs-toggle="tooltip" title="Actualizar Inventario">
-                                    <i class="fas fa-boxes"></i>
-                                </a>
-                            </div>
+                            {% if current_user.rol == 'admin' %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('inventario.editar_producto', producto_id=item.producto_id) }}" class="btn btn-primary" data-bs-toggle="tooltip" title="Editar Producto">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('inventario.editar_inventario', producto_id=item.producto_id) }}" class="btn btn-success" data-bs-toggle="tooltip" title="Actualizar Inventario">
+                                        <i class="fas fa-boxes"></i>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">Sin permisos</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -159,13 +169,25 @@
             <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
             <h5>No hay productos en el inventario</h5>
             <p class="text-muted">No se encontraron productos con los filtros aplicados.</p>
-            <a href="{{ url_for('inventario.nuevo_producto') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Agregar Producto
-            </a>
+            {% if current_user.rol == 'admin' %}
+                <a href="{{ url_for('inventario.nuevo_producto') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
 </div>
+
+<!-- ✅ DEBUG - MOSTRAR ESTADÍSTICAS EN CONSOLA -->
+<script>
+console.log('📊 ESTADÍSTICAS DEBUG:', {
+    total_productos: {{ estadisticas.total_productos }},
+    stock_bajo: {{ estadisticas.stock_bajo }},
+    excedente: {{ estadisticas.excedente }},
+    optimo: {{ estadisticas.optimo }}
+});
+</script>
 {% endblock %}
 
 {% block scripts %}

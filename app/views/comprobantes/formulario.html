@@ -1,0 +1,925 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{% if comprobante %}Editar {% else %}Nueva {% endif %}{{ tipo|title }} - AutoPartes ML
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.section-body {
+    padding: 1.5rem;
+}
+
+.productos-header {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+}
+
+.cliente-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.comprobante-header {
+    background: linear-gradient(135deg, #28a745, #155724);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn-agregar {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-agregar:hover {
+    background: linear-gradient(135deg, #ff8f00, #ffc107);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,193,7,0.4);
+    color: white;
+}
+
+.table-productos {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-dark th {
+    background: #343a40;
+    border: none;
+    font-weight: 600;
+}
+
+.totales-card {
+    background: linear-gradient(135deg, #e8f5e8, #f8f9fa);
+    border: 2px solid #28a745;
+    border-radius: 12px;
+}
+
+.total-final {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.btn-guardar {
+    background: linear-gradient(135deg, #28a745, #155724);
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-guardar:hover {
+    background: linear-gradient(135deg, #155724, #28a745);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40,167,69,0.4);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-loading {
+    background: #ffc107;
+    color: #856404;
+}
+
+.status-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.producto-row:hover {
+    background-color: #f8f9fa;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ✅ AGREGAR - Estilos para entrada manual */
+.input-mode-toggle {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.mode-btn {
+    border: none;
+    background: transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 0 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.mode-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.mode-btn:not(.active) {
+    color: #6c757d;
+}
+
+.manual-inputs {
+    display: none;
+}
+
+.manual-inputs.active {
+    display: block;
+}
+
+.select-inputs.hidden {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1400px;">
+    <!-- Header con tipo de comprobante -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-{% if tipo == 'proforma' %}file-contract{% elif tipo == 'factura' %}file-invoice-dollar{% else %}receipt{% endif %} text-primary"></i>
+                        {% if comprobante %}Editar{% else %}Nueva{% endif %} {{ tipo|title }}
+                    </h1>
+                    <span class="badge fs-6 {% if tipo == 'proforma' %}bg-info{% elif tipo == 'factura' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                        {% if tipo == 'proforma' %}📋 Cotización{% elif tipo == 'factura' %}🏢 Factura Comercial{% else %}🧾 Boleta de Venta{% endif %}
+                    </span>
+                </div>
+                <a href="/comprobantes" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form id="formularioComprobante">
+        <input type="hidden" id="comprobanteId" value="{{ comprobante.id if comprobante else '' }}">
+        <input type="hidden" id="tipoComprobante" value="{{ tipo }}">
+        
+        <div class="row">
+            <!-- Columna izquierda -->
+            <div class="col-lg-8">
+                <!-- Datos del Cliente -->
+                <div class="form-section fade-in">
+                    <div class="section-header cliente-header">
+                        <h5 class="mb-0"><i class="fas fa-user"></i> Datos del Cliente</h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre/Razón Social *</label>
+                                <input type="text" class="form-control" id="clienteNombre" 
+                                       value="{{ comprobante.cliente_nombre if comprobante else '' }}" 
+                                       placeholder="Ingrese nombre completo o razón social" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tipo Documento</label>
+                                <select class="form-select" id="clienteTipoDoc">
+                                    <option value="DNI">DNI</option>
+                                    <option value="RUC" {% if tipo == 'factura' %}selected{% endif %}>RUC</option>
+                                    <option value="CE">Carnet Extranjería</option>
+                                    <option value="PASAPORTE">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Número Documento</label>
+                                <input type="text" class="form-control" id="clienteDocumento" 
+                                       value="{{ comprobante.cliente_documento if comprobante else '' }}" 
+                                       placeholder="Ej: 12345678">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="clienteEmail" 
+                                       value="{{ comprobante.cliente_email if comprobante else '' }}" 
+                                       placeholder="cliente@email.com">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="clienteTelefono" 
+                                       value="{{ comprobante.cliente_telefono if comprobante else '' }}" 
+                                       placeholder="999 888 777">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="clienteDireccion" 
+                                       value="{{ comprobante.cliente_direccion if comprobante else '' }}" 
+                                       placeholder="Dirección completa">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div class="form-section fade-in">
+                    <div class="section-header productos-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-cart"></i> Productos 
+                            <span id="statusProductos" class="status-badge status-loading ms-2">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando...
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="section-body">
+                        <!-- ✅ AGREGAR - Toggle para modo de entrada -->
+                        <div class="input-mode-toggle">
+                            <div class="text-center">
+                                <button type="button" class="mode-btn active" id="modeSelect">
+                                    <i class="fas fa-list"></i> Seleccionar de Inventario
+                                </button>
+                                <button type="button" class="mode-btn" id="modeManual">
+                                    <i class="fas fa-keyboard"></i> Entrada Manual
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Selector de productos -->
+                        <div class="select-inputs" id="selectInputs">
+                            <div class="row mb-4">
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label">Seleccionar Producto</label>
+                                    <select class="form-select" id="selectProducto" disabled>
+                                        <option value="">Cargando productos...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Cantidad</label>
+                                    <input type="number" class="form-control" id="cantidad" value="1" min="1" max="999">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Precio Unit.</label>
+                                    <input type="number" class="form-control" id="precio" step="0.01" readonly>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Descuento %</label>
+                                    <input type="number" class="form-control" id="descuento" value="0" min="0" max="100">
+                                </div>
+                                <div class="col-md-1 mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-agregar w-100" id="btnAgregar" disabled>
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ✅ AGREGAR - Modo manual -->
+                        <div class="manual-inputs" id="manualInputs">
+                            <div class="row mb-4">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Código/SKU *</label>
+                                    <input type="text" class="form-control" id="manualCodigo" 
+                                           placeholder="Ej: P001, NUEVO-01">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Descripción *</label>
+                                    <input type="text" class="form-control" id="manualDescripcion" 
+                                           placeholder="Descripción del producto">
+                                </div>
+                                <div class="col-md-1 mb-3">
+                                    <label class="form-label">Cant. *</label>
+                                    <input type="number" class="form-control" id="manualCantidad" value="1" min="1">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Precio *</label>
+                                    <input type="number" class="form-control" id="manualPrecio" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-1 mb-3">
+                                    <label class="form-label">Desc. %</label>
+                                    <input type="number" class="form-control" id="manualDescuento" value="0" min="0" max="100">
+                                </div>
+                                <div class="col-md-1 mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-agregar w-100" id="btnAgregarManual">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Modo Manual:</strong> Úsalo para productos nuevos, servicios, o items no registrados en inventario.
+                            </div>
+                        </div>
+
+                        <!-- Tabla de productos -->
+                        <div class="table-responsive">
+                            <table class="table table-productos">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="15%">Categoría</th>
+                                        <th width="40%">Modelo</th> <!-- MODIFICADO: De Descripción a Modelo -->
+                                        <th width="10%" class="text-center">Cant.</th>
+                                        <th width="12%" class="text-end">Precio</th>
+                                        <th width="10%" class="text-center">Desc.</th>
+                                        <th width="12%" class="text-end">Total</th>
+                                        <th width="6%" class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productosTabla">
+                                    <!-- Productos se agregan aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mensaje cuando no hay productos -->
+                        <div id="sinProductos" class="text-center py-4 d-none">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No hay productos agregados</h5>
+                            <p class="text-muted">Selecciona productos de la lista para agregar al comprobante</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="col-lg-4">
+                <!-- Datos del Comprobante -->
+                <div class="form-section fade-in">
+                    <div class="section-header comprobante-header">
+                        <h5 class="mb-0"><i class="fas fa-file-invoice"></i> Datos del Comprobante</h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Serie</label>
+                                <input type="text" class="form-control" id="serie" 
+                                       value="{% if tipo == 'proforma' %}P001{% elif tipo == 'factura' %}F001{% else %}B001{% endif %}" 
+                                       readonly>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Número</label>
+                                <input type="text" class="form-control" id="numero" 
+                                       value="{{ comprobante.numero if comprobante else 'AUTO' }}" 
+                                       readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Fecha Emisión</label>
+                                <input type="date" class="form-control" id="fechaEmision">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Moneda</label>
+                                <select class="form-select" id="moneda">
+                                    <option value="PEN">Soles (PEN)</option>
+                                    <option value="USD">Dólares (USD)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" rows="3" 
+                                      placeholder="Comentarios adicionales...">{{ comprobante.observaciones if comprobante else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totales -->
+                <div class="form-section fade-in">
+                    <div class="totales-card">
+                        <div class="section-body">
+                            <h5 class="mb-3"><i class="fas fa-calculator"></i> Resumen</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Descuento:</span>
+                                <span id="descuentoTotal" class="text-danger">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IGV (18%):</span>
+                                <span id="igv">S/ 0.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong>TOTAL:</strong>
+                                <strong class="total-final" id="totalFinal">S/ 0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="text-center">
+                    <button type="button" class="btn btn-guardar btn-lg mb-2 w-100" id="btnGuardar">
+                        <i class="fas fa-save"></i> Guardar {{ tipo|title }}
+                    </button>
+                    <a href="/comprobantes" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    console.log('🚀 Iniciando formulario profesional');
+    
+    let productos = [];
+    let productosSeleccionados = [];
+    let inputMode = 'select'; // ✅ AGREGAR - Variable para modo manual
+    
+    // ✅ AGREGAR - Toggle entre modos
+    $('#modeSelect').click(function() {
+        inputMode = 'select';
+        $('.mode-btn').removeClass('active');
+        $(this).addClass('active');
+        $('#selectInputs').removeClass('hidden');
+        $('#manualInputs').removeClass('active');
+    });
+
+    $('#modeManual').click(function() {
+        inputMode = 'manual';
+        $('.mode-btn').removeClass('active');
+        $(this).addClass('active');
+        $('#selectInputs').addClass('hidden');
+        $('#manualInputs').addClass('active');
+    });
+    
+    // ✅ CARGAR PRODUCTOS
+    function cargarProductos() {
+        console.log('📦 Cargando productos...');
+        updateStatus('loading', 'Cargando productos...');
+        
+        // Intentar desde template primero
+        try {
+            const productosTemplate = {{ productos|tojson if productos else '[]' }};
+            if (productosTemplate && Array.isArray(productosTemplate) && productosTemplate.length > 0) {
+                productos = productosTemplate;
+                console.log('✅ Productos desde template:', productos.length);
+                onProductosCargados();
+                return;
+            }
+        } catch (e) {
+            console.log('⚠️ Template no disponible, usando AJAX');
+        }
+        
+        // Fallback a AJAX
+        $.get('/comprobantes/api/productos')
+            .done(function(response) {
+                console.log('📡 Respuesta API:', response);
+                if (response.success && response.productos && response.productos.length > 0) {
+                    productos = response.productos;
+                    console.log('✅ Productos desde API:', productos.length);
+                    onProductosCargados();
+                } else {
+                    console.error('❌ API sin productos');
+                    updateStatus('error', 'Error: No hay productos disponibles');
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('❌ Error AJAX:', error);
+                updateStatus('error', 'Error de conexión');
+            });
+    }
+    
+    function updateStatus(type, message) {
+        const badge = $('#statusProductos');
+        badge.removeClass('status-loading status-success status-error');
+        badge.addClass('status-' + type);
+        
+        if (type === 'loading') {
+            badge.html('<i class="fas fa-spinner fa-spin"></i> ' + message);
+        } else if (type === 'success') {
+            badge.html('<i class="fas fa-check"></i> ' + message);
+        } else {
+            badge.html('<i class="fas fa-exclamation-triangle"></i> ' + message);
+        }
+    }
+    
+    function onProductosCargados() {
+        updateStatus('success', productos.length + ' productos disponibles');
+        
+        // Llenar select - MODIFICADO: Solo categoría y modelo de carro
+        let options = '<option value="">-- Seleccionar Producto --</option>';
+        productos.forEach(function(p) {
+            // ✅ MODIFICADO: Mostrar solo categoría y modelo de carro
+            options += `<option value="${p.id}" 
+                           data-categoria="${p.categoria}"
+                           data-modelo="${p.modelo_carro}"
+                           data-precio="${p.precio_unitario}">
+                    ${p.categoria} - ${p.modelo_carro}
+                   </option>`;
+        });
+        
+        $('#selectProducto').html(options).prop('disabled', false);
+        $('#btnAgregar').prop('disabled', false);
+        
+        console.log('✅ Select poblado con', productos.length, 'productos');
+    }
+    
+    // ✅ EVENTOS
+    $('#selectProducto').change(function() {
+        const selected = $(this).find(':selected');
+        const precio = selected.data('precio');
+        
+        $('#precio').val(precio || 0);
+        
+        if (precio) {
+            calcularSubtotal();
+        }
+    });
+    
+    $('#cantidad, #descuento').on('input', calcularSubtotal);
+    
+    function calcularSubtotal() {
+        const cantidad = parseInt($('#cantidad').val()) || 1;
+        const precio = parseFloat($('#precio').val()) || 0;
+        const descuentoPct = parseFloat($('#descuento').val()) || 0;
+        
+        const subtotal = cantidad * precio;
+        const descuento = subtotal * (descuentoPct / 100);
+        const total = subtotal - descuento;
+        
+        // Visual feedback del total parcial
+        const badge = $('#statusProductos');
+        if (precio > 0) {
+            badge.html(`<i class="fas fa-calculator"></i> Total parcial: S/ ${total.toFixed(2)}`);
+        }
+    }
+    
+    // ✅ AGREGAR PRODUCTO
+    $('#btnAgregar').click(function() {
+        const productoId = $('#selectProducto').val();
+        const cantidad = parseInt($('#cantidad').val());
+        const precio = parseFloat($('#precio').val());
+        const descuentoPct = parseFloat($('#descuento').val()) || 0;
+        
+        if (!productoId) {
+            alert('⚠️ Selecciona un producto');
+            return;
+        }
+        
+        if (cantidad <= 0) {
+            alert('⚠️ La cantidad debe ser mayor a 0');
+            return;
+        }
+        
+        if (precio <= 0) {
+            alert('⚠️ El precio debe ser mayor a 0');
+            return;
+        }
+        
+        // Ya no verificamos stock
+        
+        const producto = productos.find(p => p.id == productoId);
+        const subtotalProducto = cantidad * precio;
+        const descuentoProducto = subtotalProducto * (descuentoPct / 100);
+        const totalProducto = subtotalProducto - descuentoProducto;
+        
+        const nuevoProducto = {
+            id: producto.id,
+            categoria: producto.categoria,
+            modelo_carro: producto.modelo_carro,  // ✅ MODIFICADO: Se usa modelo_carro
+            cantidad: cantidad,
+            precio_unitario: precio,
+            descuento_porcentaje: descuentoPct,
+            subtotal: totalProducto,
+            es_manual: false
+        };
+        
+        productosSeleccionados.push(nuevoProducto);
+        actualizarTabla();
+        calcularTotales();
+        
+        // Limpiar formulario
+        $('#selectProducto').val('').trigger('change');
+        $('#cantidad').val(1);
+        $('#precio').val('');
+        $('#descuento').val(0);
+        
+        console.log('✅ Producto agregado:', producto.categoria, producto.modelo_carro);
+        updateStatus('success', productosSeleccionados.length + ' productos en el comprobante');
+    });
+
+    // ✅ AGREGAR - Botón agregar manual
+    $('#btnAgregarManual').click(function() {
+        const codigo = $('#manualCodigo').val().trim();
+        const descripcion = $('#manualDescripcion').val().trim();
+        const cantidad = parseInt($('#manualCantidad').val());
+        const precio = parseFloat($('#manualPrecio').val());
+        const descuentoPct = parseFloat($('#manualDescuento').val()) || 0;
+        
+        // Validaciones
+        if (!codigo) {
+            alert('⚠️ Ingresa el código del producto');
+            $('#manualCodigo').focus();
+            return;
+        }
+        
+        if (!descripcion) {
+            alert('⚠️ Ingresa la descripción del producto');
+            $('#manualDescripcion').focus();
+            return;
+        }
+        
+        if (cantidad <= 0) {
+            alert('⚠️ La cantidad debe ser mayor a 0');
+            $('#manualCantidad').focus();
+            return;
+        }
+        
+        if (precio <= 0) {
+            alert('⚠️ El precio debe ser mayor a 0');
+            $('#manualPrecio').focus();
+            return;
+        }
+        
+        // Verificar si ya existe el código
+        const existe = productosSeleccionados.find(p => p.codigo && p.codigo.toLowerCase() === codigo.toLowerCase());
+        if (existe) {
+            alert('⚠️ Ya existe un producto con ese código');
+            return;
+        }
+        
+        const subtotalProducto = cantidad * precio;
+        const descuentoProducto = subtotalProducto * (descuentoPct / 100);
+        const totalProducto = subtotalProducto - descuentoProducto;
+        
+        // Crear producto manual
+        const nuevoProducto = {
+            id: 'manual_' + Date.now(),
+            categoria: 'Manual',
+            codigo: codigo,
+            descripcion: descripcion,
+            cantidad: cantidad,
+            precio_unitario: precio,
+            descuento_porcentaje: descuentoPct,
+            subtotal: totalProducto,
+            es_manual: true
+        };
+        
+        productosSeleccionados.push(nuevoProducto);
+        actualizarTabla();
+        calcularTotales();
+        
+        // Limpiar formulario manual
+        $('#manualCodigo').val('');
+        $('#manualDescripcion').val('');
+        $('#manualCantidad').val(1);
+        $('#manualPrecio').val('');
+        $('#manualDescuento').val(0);
+        
+        console.log('✅ Producto manual agregado:', codigo);
+        updateStatus('success', productosSeleccionados.length + ' productos en el comprobante');
+    });
+    
+    // ✅ ACTUALIZAR TABLA
+    function actualizarTabla() {
+        const tbody = $('#productosTabla');
+        const sinProductos = $('#sinProductos');
+        
+        if (productosSeleccionados.length === 0) {
+            tbody.empty();
+            sinProductos.removeClass('d-none');
+            return;
+        }
+        
+        sinProductos.addClass('d-none');
+        
+        let html = '';
+        productosSeleccionados.forEach(function(p, index) {
+            const tipoIcon = p.es_manual ? '<i class="fas fa-keyboard text-warning" title="Producto manual"></i> ' : '<i class="fas fa-database text-info" title="Del inventario"></i> ';
+            
+            html += `
+                <tr class="producto-row">
+                    <td>${tipoIcon}<strong>${p.categoria}</strong></td>
+                    <td>${p.modelo_carro || p.descripcion || ''}</td> <!-- ✅ MODIFICADO: Muestra modelo de carro -->
+                    <td class="text-center">
+                        <input type="number" class="form-control form-control-sm cantidad-input" 
+                               value="${p.cantidad}" min="1" data-index="${index}" style="width: 70px;">
+                    </td>
+                    <td class="text-end">S/ ${p.precio_unitario.toFixed(2)}</td>
+                    <td class="text-center">
+                        <input type="number" class="form-control form-control-sm descuento-input" 
+                               value="${p.descuento_porcentaje}" min="0" max="100" data-index="${index}" style="width: 60px;">%
+                    </td>
+                    <td class="text-end"><strong>S/ ${p.subtotal.toFixed(2)}</strong></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarProducto(${index})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        tbody.html(html);
+    }
+    
+    // ✅ EVENTOS DE TABLA
+    $(document).on('input', '.cantidad-input, .descuento-input', function() {
+        const index = $(this).data('index');
+        const producto = productosSeleccionados[index];
+        
+        if ($(this).hasClass('cantidad-input')) {
+            producto.cantidad = parseInt($(this).val()) || 1;
+        } else {
+            producto.descuento_porcentaje = parseFloat($(this).val()) || 0;
+        }
+        
+        const subtotalBruto = producto.cantidad * producto.precio_unitario;
+        const descuento = subtotalBruto * (producto.descuento_porcentaje / 100);
+        producto.subtotal = subtotalBruto - descuento;
+        
+        actualizarTabla();
+        calcularTotales();
+    });
+    
+    // ✅ ELIMINAR PRODUCTO
+    window.eliminarProducto = function(index) {
+        if (confirm('¿Eliminar este producto?')) {
+            productosSeleccionados.splice(index, 1);
+            actualizarTabla();
+            calcularTotales();
+            
+            const restantes = productosSeleccionados.length;
+            if (restantes === 0) {
+                updateStatus('success', productos.length + ' productos disponibles');
+            } else {
+                updateStatus('success', restantes + ' productos en el comprobante');
+            }
+        }
+    };
+    
+    // ✅ CALCULAR TOTALES
+    function calcularTotales() {
+        let subtotal = 0;
+        let descuentoTotal = 0;
+        
+        productosSeleccionados.forEach(function(p) {
+            const subtotalBruto = p.cantidad * p.precio_unitario;
+            const descuentoProducto = subtotalBruto * (p.descuento_porcentaje / 100);
+            
+            subtotal += subtotalBruto;
+            descuentoTotal += descuentoProducto;
+        });
+        
+        const subtotalNeto = subtotal - descuentoTotal;
+        const igv = subtotalNeto * 0.18;
+        const total = subtotalNeto + igv;
+        
+        $('#subtotal').text('S/ ' + subtotal.toFixed(2));
+        $('#descuentoTotal').text('S/ ' + descuentoTotal.toFixed(2));
+        $('#igv').text('S/ ' + igv.toFixed(2));
+        $('#totalFinal').text('S/ ' + total.toFixed(2));
+    }
+    
+    // ✅ GUARDAR COMPROBANTE (MODIFICADO para incluir modelo_carro)
+    $('#btnGuardar').click(function() {
+        if (!$('#clienteNombre').val().trim()) {
+            alert('⚠️ Ingresa el nombre del cliente');
+            $('#clienteNombre').focus();
+            return;
+        }
+        
+        if (productosSeleccionados.length === 0) {
+            alert('⚠️ Agrega al menos un producto');
+            return;
+        }
+        
+        const datos = {
+            comprobante_id: $('#comprobanteId').val() || null,
+            tipo: $('#tipoComprobante').val(),
+            cliente: {
+                nombre: $('#clienteNombre').val(),
+                documento: $('#clienteDocumento').val(),
+                direccion: $('#clienteDireccion').val(),
+                email: $('#clienteEmail').val(),
+                telefono: $('#clienteTelefono').val()
+            },
+            detalles: productosSeleccionados.map(p => ({
+                producto_id: p.es_manual ? null : p.id,
+                codigo_manual: p.es_manual ? p.codigo : null,
+                descripcion_manual: p.es_manual ? p.descripcion : null,
+                categoria: p.categoria,
+                modelo_carro: p.modelo_carro,  // ✅ AGREGADO: Enviar modelo de carro
+                cantidad: p.cantidad,
+                precio_unitario: p.precio_unitario,
+                descuento_porcentaje: p.descuento_porcentaje,
+                es_manual: p.es_manual || false
+            })),
+            observaciones: $('#observaciones').val(),
+            condiciones_pago: 'Contado'
+        };
+        
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+        
+        $.ajax({
+            url: '/comprobantes/guardar',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(datos),
+            success: function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.message);
+                    window.location.href = '/comprobantes/ver/' + response.comprobante_id;
+                } else {
+                    alert('❌ Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('❌ Error de conexión');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar {{ tipo|title }}');
+            }
+        });
+    });
+    
+    // ✅ INICIALIZACIÓN
+    $('#fechaEmision').val(new Date().toISOString().split('T')[0]);
+    
+    // Cargar productos existentes si es edición
+    {% if comprobante and comprobante.detalles %}
+    {% for detalle in comprobante.detalles %}
+    productosSeleccionados.push({
+        id: {{ detalle.producto_id }},
+        categoria: '{{ detalle.producto.categoria if detalle.producto else "Manual" }}',
+        modelo_carro: '{{ detalle.producto.modelo_carro if detalle.producto else "N/A" }}',  <!-- ✅ MODIFICADO: Carga modelo de carro -->
+        cantidad: {{ detalle.cantidad }},
+        precio_unitario: {{ detalle.precio_unitario }},
+        descuento_porcentaje: {{ detalle.descuento_porcentaje or 0 }},
+        subtotal: {{ detalle.subtotal }},
+        es_manual: {{ 'true' if not detalle.producto else 'false' }}
+    });
+    {% endfor %}
+    
+    // Actualizar tabla y totales después de cargar
+    setTimeout(function() {
+        actualizarTabla();
+        calcularTotales();
+    }, 500);
+    {% endif %}
+    
+    // Iniciar carga de productos
+    cargarProductos();
+    
+    console.log('✅ Formulario profesional inicializado');
+});
+</script>
+{% endblock %}
