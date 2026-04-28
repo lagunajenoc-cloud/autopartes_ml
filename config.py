@@ -9,10 +9,9 @@ class Config:
 class DevelopmentConfig(Config):
     """Configuración de desarrollo."""
     DEBUG = True
-    # PostgreSQL - Cambia las credenciales por las tuyas
+    
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://postgres:12345678@localhost/autopartes_ML'
-    # Alternativa con SQLite si no tienes PostgreSQL configurado:
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
+ 
     
 
 class ProductionConfig(Config):

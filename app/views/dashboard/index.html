@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{{% extends "layout.html" %}
 
 {% block extra_css %}
 <style>
@@ -214,6 +214,14 @@
         font-size: 1.7rem;
     }
 }
+
+/* Estilos para botón deshabilitado de ML */
+.metric-button-pro.disabled-btn,
+.metric-button-pro:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 </style>
 {% endblock %}
 
@@ -285,15 +293,21 @@
                     <span>Modelo no entrenado</span>
                 </div>
                 {% endif %}
+                
+                <!-- ✅ BOTÓN PROTEGIDO - SOLO ESTA ES LA MODIFICACIÓN IMPORTANTE -->
+                {% if ml_activo and modelo_entrenado %}
                 <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
                     <i class="fas fa-robot me-2"></i>Ver ML Dashboard
                 </a>
+                {% else %}
+                <button class="metric-button-pro" disabled style="opacity: 0.6; cursor: not-allowed;" title="ML no disponible - Instala pandas, numpy, scikit-learn">
+                    <i class="fas fa-robot me-2"></i>ML no disponible
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-
-<!-- EL RESTO DE TU DASHBOARD PERMANECE EXACTAMENTE IGUAL -->
 
 <!-- Impacto del ML -->
 {% if impacto_ml %}
@@ -329,7 +343,12 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
+                    <!-- ✅ TAMBIÉN PROTEGIDO -->
+                    {% if ml_activo and modelo_entrenado %}
                     <a href="{{ url_for('dashboard.comparativo') }}" class="btn btn-outline-primary">Ver análisis comparativo</a>
+                    {% else %}
+                    <button class="btn btn-outline-secondary" disabled style="opacity: 0.6; cursor: not-allowed;">Análisis no disponible</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
