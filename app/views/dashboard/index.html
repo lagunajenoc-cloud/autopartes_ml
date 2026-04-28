@@ -295,6 +295,7 @@
                 {% endif %}
                 
                 <!-- ✅ BOTÓN PROTEGIDO - SOLO ESTA ES LA MODIFICACIÓN IMPORTANTE -->
+                
                 {% if ml_activo and modelo_entrenado %}
                 <a href="{{ url_for('index') }}" class="metric-button-pro">
                     <i class="fas fa-robot me-2"></i>Ver ML Dashboard
@@ -304,6 +305,7 @@
                     <i class="fas fa-robot me-2"></i>ML no disponible
                 </button>
                 {% endif %}
+
             </div>
         </div>
     </div>
