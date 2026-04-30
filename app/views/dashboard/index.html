@@ -296,14 +296,15 @@
                 
                 <!-- ✅ BOTÓN PROTEGIDO - SOLO ESTA ES LA MODIFICACIÓN IMPORTANTE -->
                 
-                {% if ml_activo and modelo_entrenado %}
-                <a href="{{ url_for('index') }}" class="metric-button-pro">
-                    <i class="fas fa-robot me-2"></i>Ver ML Dashboard
+                
+                {% if 'ml' in app.blueprints %}
+                <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
+                    <i class="fas fa-brain"></i> Machine Learning
                 </a>
                 {% else %}
-                <button class="metric-button-pro" disabled style="opacity: 0.6; cursor: not-allowed;" title="ML no disponible - Instala pandas, numpy, scikit-learn">
-                    <i class="fas fa-robot me-2"></i>ML no disponible
-                </button>
+                    <button class="metric-button-pro" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <i class="fas fa-brain"></i> Machine Learning (No disponible)
+                    </button>
                 {% endif %}
 
             </div>
