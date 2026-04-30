@@ -1,4 +1,4 @@
-{{% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% block extra_css %}
 <style>
@@ -294,19 +294,16 @@
                 </div>
                 {% endif %}
                 
-                <!-- ✅ BOTÓN PROTEGIDO - SOLO ESTA ES LA MODIFICACIÓN IMPORTANTE -->
-                
-                
+                <!-- ✅ CORRECCIÓN SEGURA PARA EVITAR BuildError -->
                 {% if 'ml' in app.blueprints %}
-                <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
-                    <i class="fas fa-brain"></i> Machine Learning
-                </a>
+                    <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
+                        <i class="fas fa-brain"></i> Machine Learning
+                    </a>
                 {% else %}
-                    <button class="metric-button-pro" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <button class="metric-button-pro disabled-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
                         <i class="fas fa-brain"></i> Machine Learning (No disponible)
                     </button>
                 {% endif %}
-
             </div>
         </div>
     </div>
@@ -346,7 +343,6 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <!-- ✅ TAMBIÉN PROTEGIDO -->
                     {% if ml_activo and modelo_entrenado %}
                     <a href="{{ url_for('dashboard.comparativo') }}" class="btn btn-outline-primary">Ver análisis comparativo</a>
                     {% else %}
