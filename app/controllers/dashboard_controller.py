@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, current_app
 from flask_login import login_required
 from datetime import datetime, timedelta
+from werkzeug.routing import BuildError
+import os
 
 from app import db
 from app.models.venta import Venta
@@ -15,6 +17,19 @@ def index():
     try:
         print("🔍 Dashboard ejecutándose...")
         
+        # ✅ VERIFICACIÓN DEFINITIVA DE ML EN PYTHON
+        ml_disponible = False
+        try:
+            # 1. Verificar si el blueprint está registrado
+            if 'ml' in current_app.blueprints:
+                # 2. Intentar construir la URL internamente para confirmar que funciona
+                with current_app.test_request_context():
+                    current_app.url_map.build('ml.index')
+                    ml_disponible = True
+        except (BuildError, Exception) as e:
+            print(f"⚠️ Módulo ML detectado como no funcional: {e}")
+            ml_disponible = False
+
         # ✅ MÉTRICAS BÁSICAS CORREGIDAS
         total_ventas_count = Venta.query.count()
         suma_ventas = db.session.query(db.func.sum(Venta.precio_total)).scalar()
@@ -25,7 +40,6 @@ def index():
         
         total_productos = Producto.query.count()
         
-        # ✅ CALCULAR MÉTRICAS DE STOCK REALES
         productos_stock_bajo = db.session.query(Inventario).filter(
             Inventario.stock_actual <= Inventario.stock_minimo
         ).count()
@@ -43,7 +57,6 @@ def index():
             'productos_excedente': productos_excedente
         }
         
-        # ✅ OBTENER VENTAS POR CATEGORÍA REALES
         ventas_categoria = db.session.query(
             Producto.categoria,
             db.func.sum(Venta.precio_total).label('monto_total')
@@ -56,14 +69,12 @@ def index():
             for v in ventas_categoria
         ]
         
-        # ✅ OBTENER INVENTARIO EXCEDENTE REAL
         inventario_excedente_query = db.session.query(Producto, Inventario).join(
             Inventario, Producto.id == Inventario.producto_id
         ).filter(
             Inventario.stock_actual > Inventario.stock_optimo
         ).limit(10).all()
         
-        # Convertir a formato que espera el template
         inventario_excedente = []
         for producto, inventario in inventario_excedente_query:
             inventario_excedente.append({
@@ -73,7 +84,6 @@ def index():
                 'precio_unitario': float(producto.precio_unitario)
             })
         
-        # ✅ OBTENER PRODUCTOS BAJA ROTACIÓN
         fecha_limite = datetime.now() - timedelta(days=90)
         
         productos_baja_rotacion_query = db.session.query(
@@ -92,7 +102,6 @@ def index():
             Inventario.stock_actual > 10
         ).limit(10).all()
         
-        # Convertir a formato que espera el template
         productos_baja_rotacion = []
         for producto, total_ventas, stock_actual in productos_baja_rotacion_query:
             productos_baja_rotacion.append({
@@ -102,19 +111,13 @@ def index():
                 'stock_actual': stock_actual or 0
             })
         
-        # ✅ ÚLTIMAS VENTAS
         ultimas_ventas = Venta.query.order_by(Venta.fecha_venta.desc()).limit(5).all()
         
-        # ✅ VERIFICAR MODELO ML
-        import os
         modelo_path = os.path.join('instance', 'ml_models', 'extra_trees_model.joblib')
         modelo_entrenado = os.path.exists(modelo_path)
         
         print(f"✅ Estadísticas calculadas: {estadisticas}")
-        print(f"✅ Ventas por categoría: {len(ventas_categoria_list)}")
-        print(f"✅ Inventario excedente: {len(inventario_excedente)}")
-        print(f"✅ Productos baja rotación: {len(productos_baja_rotacion)}")
-        print(f"✅ Últimas ventas: {len(ultimas_ventas)}")
+        print(f"🤖 ML Disponible: {ml_disponible}")
         
         return render_template(
             'dashboard/index.html',
@@ -125,8 +128,9 @@ def index():
             ultimas_ventas=ultimas_ventas,
             modelo_entrenado=modelo_entrenado,
             impacto_ml=None,
-            datos_grafico_ventas={'fechas': [], 'totales': []},  # Se llenan via API
+            datos_grafico_ventas={'fechas': [], 'totales': []},
             datos_grafico_predicciones=None,
+            ml_disponible=ml_disponible,  # ✅ VARIABLE SEGURA PASADA AL TEMPLATE
             title='Dashboard'
         )
         
@@ -156,12 +160,9 @@ def comparativo():
 @dashboard_bp.route('/api/ventas-por-dia')
 @login_required
 def api_ventas_por_dia():
-    """API para gráfico de ventas por día - CORREGIDA"""
-    # Últimos 30 días
     fecha_limite = datetime.now() - timedelta(days=30)
     
     try:
-        # ✅ CONSULTA CORREGIDA CON CAMPOS REALES
         ventas = db.session.query(
             db.func.date(Venta.fecha_venta).label('fecha'),
             db.func.sum(Venta.precio_total).label('total')
@@ -176,7 +177,6 @@ def api_ventas_por_dia():
             'totales': [float(venta.total) for venta in ventas]
         }
         
-        print(f"✅ API Ventas por día: {len(datos['fechas'])} registros")
         return jsonify(datos)
         
     except Exception as e:
@@ -186,10 +186,7 @@ def api_ventas_por_dia():
 @dashboard_bp.route('/api/ventas-por-categoria')
 @login_required  
 def api_ventas_por_categoria():
-    """API para gráfico de ventas por categoría - CORREGIDA"""
-    
     try:
-        # ✅ CONSULTA CORREGIDA CON CAMPOS REALES
         ventas = db.session.query(
             Producto.categoria,
             db.func.sum(Venta.precio_total).label('total')
@@ -202,7 +199,6 @@ def api_ventas_por_categoria():
             'totales': [float(venta.total) for venta in ventas]
         }
         
-        print(f"✅ API Ventas por categoría: {len(datos['categorias'])} categorías")
         return jsonify(datos)
         
     except Exception as e:

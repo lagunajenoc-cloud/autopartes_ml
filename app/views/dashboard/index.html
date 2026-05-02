@@ -294,8 +294,8 @@
                 </div>
                 {% endif %}
                 
-                <!-- ✅ CORRECCIÓN SEGURA PARA EVITAR BuildError -->
-                {% if 'ml' in app.blueprints %}
+                <!-- ✅ CORRECCIÓN DEFINITIVA: Usa variable calculada en Python -->
+                {% if ml_disponible %}
                     <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
                         <i class="fas fa-brain"></i> Machine Learning
                     </a>
