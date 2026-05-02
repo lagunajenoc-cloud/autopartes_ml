@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+% extends "layout.html" %}
 
 {% block extra_css %}
 <style>
@@ -44,7 +44,6 @@
     box-shadow: 0 4px 15px rgba(102,126,234,0.3); margin-top: 1rem;
 }
 .metric-button-pro:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); color: white; text-decoration: none; }
-.metric-button-pro.disabled-btn, .metric-button-pro:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 .metric-ventas { --grad-start: #667eea; --grad-end: #764ba2; }
 .metric-inventario { --grad-start: #4ade80; --grad-end: #22c55e; }
 .metric-ml { --grad-start: #06b6d4; --grad-end: #0891b2; }
@@ -85,34 +84,17 @@
         <div class="metric-card-pro metric-ml">
             <div class="metric-header-pro"><div class="metric-icon-pro"><i class="fas fa-brain"></i></div></div>
             <div class="metric-content-pro">
-                {% if modelo_entrenado %}
-                <div class="metric-value-pro">Activo</div>
-                <div class="metric-label-pro">Machine Learning</div>
-                <div class="metric-trend-pro"><i class="fas fa-check-circle"></i><span>Modelo funcionando</span></div>
-                {% else %}
-                <div class="metric-value-pro">Inactivo</div>
+                <!-- ML Button removed to prevent BuildError until joblib is fixed -->
+                <div class="metric-value-pro" style="font-size: 1.5rem;">En Mantenimiento</div>
                 <div class="metric-label-pro">Machine Learning</div>
                 <div class="metric-trend-pro" style="background:rgba(251,191,36,0.1);color:#d97706;border-color:rgba(251,191,36,0.3);">
-                    <i class="fas fa-exclamation-triangle"></i><span>Modelo no entrenado</span>
+                    <i class="fas fa-tools"></i><span>Módulo no disponible</span>
                 </div>
-                {% endif %}
-                
-                <!-- ✅ AQUÍ ESTÁ LA CLAVE: Usa la variable ml_disponible -->
-                {% if ml_disponible %}
-                    <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
-                        <i class="fas fa-brain"></i> Machine Learning
-                    </a>
-                {% else %}
-                    <button class="metric-button-pro disabled-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
-                        <i class="fas fa-brain"></i> Machine Learning (No disponible)
-                    </button>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Gráficos y Tablas -->
 <div class="row">
     <div class="col-md-8 mb-4">
         <div class="card dashboard-card">
@@ -172,13 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/dashboard/api/ventas-por-dia').then(r=>r.json()).then(d=>{
         document.getElementById('ventasChartLoading').style.display='none';
         if(d.fechas.length>0){
-            new Chart(document.getElementById('ventasChart'),{type:'line',{labels:d.fechas,datasets:[{label:'Ventas (S/)',d.totales,borderColor:'rgb(13,110,253)',fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
+            new Chart(document.getElementById('ventasChart'),{type:'line',data:{labels:d.fechas,datasets:[{label:'Ventas (S/)',data:d.totales,borderColor:'rgb(13,110,253)',fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
         }
     });
     fetch('/dashboard/api/ventas-por-categoria').then(r=>r.json()).then(d=>{
         document.getElementById('categoriaChartLoading').style.display='none';
         if(d.categorias.length>0){
-            new Chart(document.getElementById('categoriaChart'),{type:'pie',{labels:d.categorias,datasets:[{d.totales,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']}]},options:{responsive:true,maintainAspectRatio:false}});
+            new Chart(document.getElementById('categoriaChart'),{type:'pie',data:{labels:d.categorias,datasets:[{data:d.totales,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']}]},options:{responsive:true,maintainAspectRatio:false}});
         }
     });
 });
