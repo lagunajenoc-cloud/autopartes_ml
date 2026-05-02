@@ -2,299 +2,102 @@
 
 {% block extra_css %}
 <style>
-/* Estilos específicos para las métricas superiores mejoradas */
-.metrics-professional {
-    margin-bottom: 2rem;
-}
-
+.metrics-professional { margin-bottom: 2rem; }
 .metric-card-pro {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%);
+    backdrop-filter: blur(10px); border-radius: 20px; padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    transition: all 0.3s ease; position: relative; overflow: hidden; margin-bottom: 1.5rem;
 }
-
 .metric-card-pro::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    animation: gradientShift 3s ease infinite;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2); animation: gradientShift 3s ease infinite;
 }
-
-@keyframes gradientShift {
-    0%, 100% { background: linear-gradient(90deg, #667eea, #764ba2); }
-    50% { background: linear-gradient(90deg, #764ba2, #667eea); }
-}
-
-.metric-card-pro:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
-}
-
-.metric-header-pro {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
+@keyframes gradientShift { 0%,100%{background:linear-gradient(90deg,#667eea,#764ba2);} 50%{background:linear-gradient(90deg,#764ba2,#667eea);} }
+.metric-card-pro:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+.metric-header-pro { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
 .metric-icon-pro {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
+    width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center;
+    justify-content: center; font-size: 2rem; color: white; position: relative; overflow: hidden;
 }
-
-.metric-icon-pro::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: inherit;
-    opacity: 0.8;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.05); opacity: 1; }
-}
-
-.metric-icon-pro i {
-    position: relative;
-    z-index: 2;
-}
-
-.metric-content-pro {
-    text-align: center;
-}
-
+.metric-icon-pro::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:inherit; opacity:0.8; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:0.8;} 50%{transform:scale(1.05);opacity:1;} }
+.metric-icon-pro i { position: relative; z-index: 2; }
+.metric-content-pro { text-align: center; }
 .metric-value-pro {
-    font-size: 2.8rem;
-    font-weight: 800;
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 2.8rem; font-weight: 800; background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.5rem; line-height: 1.2;
 }
-
-.metric-label-pro {
-    color: #6c757d;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
+.metric-label-pro { color: #6c757d; font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; }
 .metric-trend-pro {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    background: rgba(74, 222, 128, 0.1);
-    color: #16a34a;
-    border: 1px solid rgba(74, 222, 128, 0.3);
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 600;
+    font-size: 0.95rem; padding: 0.5rem 1rem; border-radius: 25px; background: rgba(74,222,128,0.1);
+    color: #16a34a; border: 1px solid rgba(74,222,128,0.3);
 }
-
-.metric-trend-pro i {
-    animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-}
-
+.metric-trend-pro i { animation: bounce 1s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
 .metric-button-pro {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    margin-top: 1rem;
+    background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none;
+    padding: 0.7rem 1.5rem; border-radius: 25px; font-weight: 600; font-size: 0.9rem;
+    text-decoration: none; display: inline-block; transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.3); margin-top: 1rem;
 }
-
-.metric-button-pro:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    color: white;
-    text-decoration: none;
-}
-
-/* Variaciones de color para cada métrica */
-.metric-ventas {
-    --gradient-start: #667eea;
-    --gradient-end: #764ba2;
-}
-
-.metric-inventario {
-    --gradient-start: #4ade80;
-    --gradient-end: #22c55e;
-}
-
-.metric-ml {
-    --gradient-start: #06b6d4;
-    --gradient-end: #0891b2;
-}
-
-.metric-ventas .metric-icon-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-}
-
-.metric-inventario .metric-icon-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-}
-
-.metric-ml .metric-icon-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-}
-
-.metric-ventas .metric-button-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.metric-inventario .metric-button-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-    box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
-}
-
-.metric-ml .metric-button-pro {
-    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .metric-card-pro {
-        margin-bottom: 1rem;
-        padding: 1.5rem;
-    }
-    
-    .metric-value-pro {
-        font-size: 2.2rem;
-    }
-    
-    .metric-icon-pro {
-        width: 60px;
-        height: 60px;
-        font-size: 1.7rem;
-    }
-}
-
-/* Estilos para botón deshabilitado de ML */
-.metric-button-pro.disabled-btn,
-.metric-button-pro:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-}
+.metric-button-pro:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); color: white; text-decoration: none; }
+.metric-button-pro.disabled-btn, .metric-button-pro:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.metric-ventas { --grad-start: #667eea; --grad-end: #764ba2; }
+.metric-inventario { --grad-start: #4ade80; --grad-end: #22c55e; }
+.metric-ml { --grad-start: #06b6d4; --grad-end: #0891b2; }
+.metric-ventas .metric-icon-pro, .metric-ventas .metric-button-pro { background: linear-gradient(45deg, var(--grad-start), var(--grad-end)); }
+.metric-inventario .metric-icon-pro, .metric-inventario .metric-button-pro { background: linear-gradient(45deg, var(--grad-start), var(--grad-end)); }
+.metric-ml .metric-icon-pro, .metric-ml .metric-button-pro { background: linear-gradient(45deg, var(--grad-start), var(--grad-end)); }
+@media (max-width: 768px) { .metric-card-pro { padding: 1.5rem; } .metric-value-pro { font-size: 2.2rem; } .metric-icon-pro { width: 60px; height: 60px; font-size: 1.7rem; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Métricas principales mejoradas -->
 <div class="row metrics-professional">
     <div class="col-md-4">
         <div class="metric-card-pro metric-ventas">
-            <div class="metric-header-pro">
-                <div class="metric-icon-pro">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-            </div>
+            <div class="metric-header-pro"><div class="metric-icon-pro"><i class="fas fa-dollar-sign"></i></div></div>
             <div class="metric-content-pro">
                 <div class="metric-value-pro">{{ 'S/ {:,.2f}'.format(estadisticas.ventas_totales) }}</div>
                 <div class="metric-label-pro">Ventas Totales</div>
-                <div class="metric-trend-pro">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>{{ estadisticas.total_ventas }} transacciones</span>
-                </div>
-                <a href="{{ url_for('ventas.index') }}" class="metric-button-pro">
-                    <i class="fas fa-eye me-2"></i>Ver ventas
-                </a>
+                <div class="metric-trend-pro"><i class="fas fa-arrow-up"></i><span>{{ estadisticas.total_ventas }} transacciones</span></div>
+                <a href="{{ url_for('ventas.index') }}" class="metric-button-pro"><i class="fas fa-eye me-2"></i>Ver ventas</a>
             </div>
         </div>
     </div>
     
     <div class="col-md-4">
         <div class="metric-card-pro metric-inventario">
-            <div class="metric-header-pro">
-                <div class="metric-icon-pro">
-                    <i class="fas fa-boxes"></i>
-                </div>
-            </div>
+            <div class="metric-header-pro"><div class="metric-icon-pro"><i class="fas fa-boxes"></i></div></div>
             <div class="metric-content-pro">
                 <div class="metric-value-pro">{{ estadisticas.productos_stock_bajo + estadisticas.productos_excedente }}</div>
                 <div class="metric-label-pro">Productos Atención</div>
-                <div class="metric-trend-pro">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>requieren revisión</span>
-                </div>
-                <a href="{{ url_for('inventario.index') }}" class="metric-button-pro">
-                    <i class="fas fa-warehouse me-2"></i>Ver inventario
-                </a>
+                <div class="metric-trend-pro"><i class="fas fa-exclamation-circle"></i><span>requieren revisión</span></div>
+                <a href="{{ url_for('inventario.index') }}" class="metric-button-pro"><i class="fas fa-warehouse me-2"></i>Ver inventario</a>
             </div>
         </div>
     </div>
     
     <div class="col-md-4">
         <div class="metric-card-pro metric-ml">
-            <div class="metric-header-pro">
-                <div class="metric-icon-pro">
-                    <i class="fas fa-brain"></i>
-                </div>
-            </div>
+            <div class="metric-header-pro"><div class="metric-icon-pro"><i class="fas fa-brain"></i></div></div>
             <div class="metric-content-pro">
                 {% if modelo_entrenado %}
                 <div class="metric-value-pro">Activo</div>
                 <div class="metric-label-pro">Machine Learning</div>
-                <div class="metric-trend-pro">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Modelo funcionando</span>
-                </div>
+                <div class="metric-trend-pro"><i class="fas fa-check-circle"></i><span>Modelo funcionando</span></div>
                 {% else %}
                 <div class="metric-value-pro">Inactivo</div>
                 <div class="metric-label-pro">Machine Learning</div>
-                <div class="metric-trend-pro" style="background: rgba(251, 191, 36, 0.1); color: #d97706; border-color: rgba(251, 191, 36, 0.3);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Modelo no entrenado</span>
+                <div class="metric-trend-pro" style="background:rgba(251,191,36,0.1);color:#d97706;border-color:rgba(251,191,36,0.3);">
+                    <i class="fas fa-exclamation-triangle"></i><span>Modelo no entrenado</span>
                 </div>
                 {% endif %}
                 
-                <!-- ✅ CORRECCIÓN DEFINITIVA: Usa variable calculada en Python -->
+                <!-- ✅ CORRECCIÓN DEFINITIVA: Usa la variable calculada en Python -->
                 {% if ml_disponible %}
                     <a href="{{ url_for('ml.index') }}" class="metric-button-pro">
                         <i class="fas fa-brain"></i> Machine Learning
@@ -309,232 +112,36 @@
     </div>
 </div>
 
-<!-- Impacto del ML -->
-{% if impacto_ml %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card dashboard-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Impacto del Machine Learning</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="indicator">
-                            <div class="indicator-icon text-success">
-                                <i class="fas fa-arrow-up"></i>
-                            </div>
-                            <div>
-                                <div class="indicator-value">+{{ '{:.2f}%'.format(impacto_ml.incremento_ventas) }}</div>
-                                <div class="text-muted">Incremento en ventas</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="indicator">
-                            <div class="indicator-icon text-danger">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div>
-                                <div class="indicator-value">-{{ '{:.2f}%'.format(impacto_ml.reduccion_inventario) }}</div>
-                                <div class="text-muted">Reducción de inventario excedente</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-3">
-                    {% if ml_activo and modelo_entrenado %}
-                    <a href="{{ url_for('dashboard.comparativo') }}" class="btn btn-outline-primary">Ver análisis comparativo</a>
-                    {% else %}
-                    <button class="btn btn-outline-secondary" disabled style="opacity: 0.6; cursor: not-allowed;">Análisis no disponible</button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
 <div class="row">
-    <!-- Gráfico de ventas -->
     <div class="col-md-8 mb-4">
         <div class="card dashboard-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Ventas por Día (Últimos 30 días)</h5>
-            </div>
+            <div class="card-header bg-primary text-white"><h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Ventas por Día</h5></div>
             <div class="card-body">
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="ventasChart"></canvas>
-                </div>
-                <div id="ventasChartLoading" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p class="mt-2">Cargando datos de ventas...</p>
-                </div>
-                <div id="ventasChartError" class="text-center py-4 d-none">
-                    <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
-                    <p class="text-muted">No hay datos de ventas disponibles</p>
-                </div>
+                <div class="chart-container" style="height: 400px;"><canvas id="ventasChart"></canvas></div>
+                <div id="ventasChartLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Cargando...</p></div>
             </div>
         </div>
     </div>
-    
-    <!-- Ventas por categoría -->
     <div class="col-md-4 mb-4">
         <div class="card dashboard-card">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-tags me-2"></i>Ventas por Categoría</h5>
-            </div>
+            <div class="card-header bg-success text-white"><h5 class="card-title mb-0"><i class="fas fa-tags me-2"></i>Ventas por Categoría</h5></div>
             <div class="card-body">
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="categoriaChart"></canvas>
-                </div>
-                <div id="categoriaChartLoading" class="text-center py-4">
-                    <div class="spinner-border text-success" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p class="mt-2">Cargando datos por categoría...</p>
-                </div>
-                <div id="categoriaChartError" class="text-center py-4 d-none">
-                    <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
-                    <p class="text-muted">No hay datos de categorías disponibles</p>
-                </div>
+                <div class="chart-container" style="height: 400px;"><canvas id="categoriaChart"></canvas></div>
+                <div id="categoriaChartLoading" class="text-center py-4"><div class="spinner-border text-success"></div><p class="mt-2">Cargando...</p></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <!-- Inventario excedente -->
-    <div class="col-md-6 mb-4">
-        <div class="card dashboard-card">
-            <div class="card-header bg-danger text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Inventario Excedente</h5>
-            </div>
-            <div class="card-body">
-                {% if inventario_excedente %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Excedente</th>
-                                <th>Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in inventario_excedente[:5] %}
-                            <tr>
-                                <td>{{ item.codigo }}</td>
-                                <td>{{ item.categoria }}</td>
-                                <td>{{ item.excedente }}</td>
-                                <td>{{ 'S/ {:.2f}'.format(item['excedente'] * item['precio_unitario']) }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if inventario_excedente|length > 5 %}
-                <div class="text-center">
-                    <a href="{{ url_for('inventario.inventario_excedente') }}" class="btn btn-sm btn-outline-danger">Ver todo</a>
-                </div>
-                {% endif %}
-                {% else %}
-                <div class="text-center py-3">
-                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                    <p>No hay inventario excedente actualmente.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- Productos con baja rotación -->
-    <div class="col-md-6 mb-4">
-        <div class="card dashboard-card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="card-title mb-0"><i class="fas fa-hourglass-half me-2"></i>Productos con Baja Rotación</h5>
-            </div>
-            <div class="card-body">
-                {% if productos_baja_rotacion %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Ventas</th>
-                                <th>Stock</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in productos_baja_rotacion[:5] %}
-                            <tr>
-                                <td>{{ item.codigo }}</td>
-                                <td>{{ item.categoria }}</td>
-                                <td>{{ item.total_ventas }}</td>
-                                <td>{{ item.stock_actual }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if productos_baja_rotacion|length > 5 %}
-                <div class="text-center">
-                    <a href="{{ url_for('inventario.index') }}?stock_bajo=true" class="btn btn-sm btn-outline-warning">Ver todo</a>
-                </div>
-                {% endif %}
-                {% else %}
-                <div class="text-center py-3">
-                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                    <p>No hay productos con baja rotación actualmente.</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Predicciones vs ventas reales (si hay modelo entrenado) -->
-{% if modelo_entrenado and datos_grafico_predicciones %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card dashboard-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-robot me-2"></i>Predicciones vs Ventas Reales</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="prediccionesChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Últimas ventas -->
 <div class="row">
     <div class="col-12 mb-4">
         <div class="card dashboard-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0"><i class="fas fa-receipt me-2"></i>Últimas Ventas</h5>
-            </div>
+            <div class="card-header bg-primary text-white"><h5 class="card-title mb-0"><i class="fas fa-receipt me-2"></i>Últimas Ventas</h5></div>
             <div class="card-body">
                 {% if ultimas_ventas %}
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                                <th>Vendedor</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Vendedor</th></tr></thead>
                         <tbody>
                             {% for venta in ultimas_ventas %}
                             <tr>
@@ -548,14 +155,8 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="text-center">
-                    <a href="{{ url_for('ventas.index') }}" class="btn btn-sm btn-outline-primary">Ver todas las ventas</a>
-                </div>
                 {% else %}
-                <div class="text-center py-3">
-                    <p>No hay ventas registradas aún.</p>
-                    <a href="{{ url_for('ventas.nueva_venta')}}" class="btn btn-primary">Registrar venta</a>
-                </div>
+                <div class="text-center py-3"><p>No hay ventas registradas aún.</p></div>
                 {% endif %}
             </div>
         </div>
@@ -564,262 +165,21 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- ✅ CARGAR CHART.JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    let ventasChart = null;
-    let categoriaChart = null;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 Iniciando carga de gráficos del dashboard...');
-        
-        // ✅ CARGAR GRÁFICO DE VENTAS POR DÍA
-        cargarGraficoVentas();
-        
-        // ✅ CARGAR GRÁFICO DE VENTAS POR CATEGORÍA
-        cargarGraficoCategorias();
-        
-        // Gráfico de predicciones vs real (si hay modelo ML)
-        {% if datos_grafico_predicciones %}
-        const predChart = createLineChart(
-            'prediccionesChart',
-            {{ datos_grafico_predicciones.fechas|tojson }},
-            [
-                {
-                    label: 'Ventas reales',
-                    data: {{ datos_grafico_predicciones.cantidades|tojson }},
-                    borderColor: 'rgb(25, 135, 84)',
-                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                    tension: 0.1
-                },
-                {
-                    label: 'Predicción',
-                    data: Array({{ datos_grafico_predicciones.fechas|length }}).fill({{ datos_grafico_predicciones.prediccion }}),
-                    borderColor: 'rgb(13, 202, 240)',
-                    backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                    borderDash: [5, 5],
-                    tension: 0
-                }
-            ],
-            'Predicción para Producto ID: {{ datos_grafico_predicciones.producto_id }}'
-        );
-        {% endif %}
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/dashboard/api/ventas-por-dia').then(r=>r.json()).then(d=>{
+        document.getElementById('ventasChartLoading').style.display='none';
+        if(d.fechas.length>0){
+            new Chart(document.getElementById('ventasChart'),{type:'line',data:{labels:d.fechas,datasets:[{label:'Ventas (S/)',data:d.totales,borderColor:'rgb(13,110,253)',fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
+        }
     });
-
-    // ✅ FUNCIÓN PARA CARGAR GRÁFICO DE VENTAS POR DÍA
-    function cargarGraficoVentas() {
-        console.log('🔍 Iniciando carga de datos de ventas por día...');
-        
-        fetch('/dashboard/api/ventas-por-dia')
-            .then(response => {
-                console.log('📡 Respuesta recibida:', response.status);
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('📊 Datos de ventas por día recibidos:', data);
-                
-                // Ocultar loading
-                const loadingElement = document.getElementById('ventasChartLoading');
-                if (loadingElement) {
-                    loadingElement.style.display = 'none';
-                }
-                
-                if (data.fechas && data.fechas.length > 0) {
-                    // Mostrar gráfico
-                    const ctx = document.getElementById('ventasChart').getContext('2d');
-                    ventasChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.fechas.map(fecha => {
-                                const d = new Date(fecha);
-                                return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
-                            }),
-                            datasets: [{
-                                label: 'Ventas (S/)',
-                                data: data.totales,
-                                borderColor: 'rgb(13, 110, 253)',
-                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                                tension: 0.1,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        callback: function(value) {
-                                            return 'S/ ' + value.toLocaleString('es-PE');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    console.log('✅ Gráfico de ventas creado exitosamente');
-                } else {
-                    // Mostrar mensaje de error
-                    const errorElement = document.getElementById('ventasChartError');
-                    if (errorElement) {
-                        errorElement.classList.remove('d-none');
-                    }
-                    console.log('⚠️ No hay datos de ventas disponibles');
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error cargando ventas por día:', error);
-                const loadingElement = document.getElementById('ventasChartLoading');
-                const errorElement = document.getElementById('ventasChartError');
-                
-                if (loadingElement) {
-                    loadingElement.style.display = 'none';
-                }
-                if (errorElement) {
-                    errorElement.classList.remove('d-none');
-                }
-            });
-    }
-
-    // ✅ FUNCIÓN PARA CARGAR GRÁFICO DE VENTAS POR CATEGORÍA
-    function cargarGraficoCategorias() {
-        console.log('🔍 Iniciando carga de datos de ventas por categoría...');
-        
-        fetch('/dashboard/api/ventas-por-categoria')
-            .then(response => {
-                console.log('📡 Respuesta recibida:', response.status);
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('📊 Datos de ventas por categoría recibidos:', data);
-                
-                // Ocultar loading
-                const loadingElement = document.getElementById('categoriaChartLoading');
-                if (loadingElement) {
-                    loadingElement.style.display = 'none';
-                }
-                
-                if (data.categorias && data.categorias.length > 0) {
-                    // Colores para el gráfico
-                    const colores = [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                        '#FF9F40', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB'
-                    ];
-                    
-                    // Mostrar gráfico
-                    const ctx = document.getElementById('categoriaChart').getContext('2d');
-                    categoriaChart = new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: data.categorias,
-                            datasets: [{
-                                data: data.totales,
-                                backgroundColor: colores.slice(0, data.categorias.length),
-                                borderWidth: 2,
-                                borderColor: '#fff'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        padding: 10,
-                                        usePointStyle: true
-                                    }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                            const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                            return context.label + ': S/ ' + context.parsed.toLocaleString('es-PE') + ' (' + percentage + '%)';
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    console.log('✅ Gráfico de categorías creado exitosamente');
-                } else {
-                    // Mostrar mensaje de error
-                    const errorElement = document.getElementById('categoriaChartError');
-                    if (errorElement) {
-                        errorElement.classList.remove('d-none');
-                    }
-                    console.log('⚠️ No hay datos de categorías disponibles');
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error cargando ventas por categoría:', error);
-                const loadingElement = document.getElementById('categoriaChartLoading');
-                const errorElement = document.getElementById('categoriaChartError');
-                
-                if (loadingElement) {
-                    loadingElement.style.display = 'none';
-                }
-                if (errorElement) {
-                    errorElement.classList.remove('d-none');
-                }
-            });
-    }
-
-    // Efecto de animación de entrada para las métricas
-    document.addEventListener('DOMContentLoaded', function() {
-        const metricCards = document.querySelectorAll('.metric-card-pro');
-        
-        metricCards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'all 0.6s ease';
-                
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 100);
-            }, index * 200);
-        });
-        
-        // Animación de números contadores
-        setTimeout(() => {
-            animateCounters();
-        }, 800);
+    fetch('/dashboard/api/ventas-por-categoria').then(r=>r.json()).then(d=>{
+        document.getElementById('categoriaChartLoading').style.display='none';
+        if(d.categorias.length>0){
+            new Chart(document.getElementById('categoriaChart'),{type:'pie',data:{labels:d.categorias,datasets:[{data:d.totales,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']}]},options:{responsive:true,maintainAspectRatio:false}});
+        }
     });
-
-    function animateCounters() {
-        const valueElements = document.querySelectorAll('.metric-value-pro');
-        
-        valueElements.forEach(element => {
-            const text = element.textContent;
-            const isNumber = /[\d,.]/.test(text);
-            
-            if (isNumber) {
-                element.style.opacity = '0.5';
-                setTimeout(() => {
-                    element.style.opacity = '1';
-                    element.style.transform = 'scale(1.05)';
-                    setTimeout(() => {
-                        element.style.transform = 'scale(1)';
-                    }, 200);
-                }, 300);
-            }
-        });
-    }
+});
 </script>
 {% endblock %}

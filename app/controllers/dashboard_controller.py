@@ -17,20 +17,18 @@ def index():
     try:
         print("🔍 Dashboard ejecutándose...")
         
-        # ✅ VERIFICACIÓN DEFINITIVA DE ML EN PYTHON
+        # ✅ 1. VERIFICACIÓN SEGURA DE ML (Evita el BuildError)
         ml_disponible = False
         try:
-            # 1. Verificar si el blueprint está registrado
             if 'ml' in current_app.blueprints:
-                # 2. Intentar construir la URL internamente para confirmar que funciona
                 with current_app.test_request_context():
                     current_app.url_map.build('ml.index')
                     ml_disponible = True
         except (BuildError, Exception) as e:
-            print(f"⚠️ Módulo ML detectado como no funcional: {e}")
+            print(f"⚠️ Módulo ML no disponible: {e}")
             ml_disponible = False
 
-        # ✅ MÉTRICAS BÁSICAS CORREGIDAS
+        # ✅ 2. MÉTRICAS BÁSICAS
         total_ventas_count = Venta.query.count()
         suma_ventas = db.session.query(db.func.sum(Venta.precio_total)).scalar()
         suma_float = float(suma_ventas) if suma_ventas else 0.0
@@ -119,6 +117,7 @@ def index():
         print(f"✅ Estadísticas calculadas: {estadisticas}")
         print(f"🤖 ML Disponible: {ml_disponible}")
         
+        # ✅ 3. RENDERIZAR PASANDO LA VARIABLE SEGURA
         return render_template(
             'dashboard/index.html',
             estadisticas=estadisticas,
@@ -130,77 +129,46 @@ def index():
             impacto_ml=None,
             datos_grafico_ventas={'fechas': [], 'totales': []},
             datos_grafico_predicciones=None,
-            ml_disponible=ml_disponible,  # ✅ VARIABLE SEGURA PASADA AL TEMPLATE
+            ml_disponible=ml_disponible,  # 👈 ESTO ES LO QUE EVITA EL ERROR
             title='Dashboard'
         )
         
     except Exception as e:
-        print(f"❌ ERROR EN DASHBOARD:")
-        print(f"   Tipo: {type(e).__name__}")
-        print(f"   Mensaje: {str(e)}")
+        print(f"❌ ERROR EN DASHBOARD: {type(e).__name__} - {str(e)}")
         import traceback
-        print(f"   Traceback: {traceback.format_exc()}")
-        
-        return f"<h1>Error en Dashboard</h1><p>{str(e)}</p><pre>{traceback.format_exc()}</pre>"
+        traceback.print_exc()
+        return f"<h1>Error en Dashboard</h1><p>{str(e)}</p>"
 
 @dashboard_bp.route('/comparativo')
 @login_required
 def comparativo():
-    return render_template(
-        'dashboard/comparativo.html',
-        resultados=[],
-        ultimo_resultado=None,
-        datos_inventario={'antes': 0, 'despues': 0, 'reduccion_porcentaje': 0},
-        datos_ventas={'antes': 0, 'despues': 0, 'incremento_porcentaje': 0},
-        title='Análisis Comparativo Pre/Post ML'
-    )
-
-# ===== RUTAS API PARA GRÁFICOS =====
+    return render_template('dashboard/comparativo.html', title='Análisis Comparativo')
 
 @dashboard_bp.route('/api/ventas-por-dia')
 @login_required
 def api_ventas_por_dia():
     fecha_limite = datetime.now() - timedelta(days=30)
-    
     try:
         ventas = db.session.query(
             db.func.date(Venta.fecha_venta).label('fecha'),
             db.func.sum(Venta.precio_total).label('total')
-        ).filter(
-            Venta.fecha_venta >= fecha_limite
-        ).group_by(
-            db.func.date(Venta.fecha_venta)
-        ).order_by('fecha').all()
-        
-        datos = {
-            'fechas': [venta.fecha.strftime('%Y-%m-%d') for venta in ventas],
-            'totales': [float(venta.total) for venta in ventas]
-        }
-        
-        return jsonify(datos)
-        
+        ).filter(Venta.fecha_venta >= fecha_limite).group_by('fecha').order_by('fecha').all()
+        return jsonify({
+            'fechas': [v.fecha.strftime('%Y-%m-%d') for v in ventas],
+            'totales': [float(v.total) for v in ventas]
+        })
     except Exception as e:
-        print(f"❌ Error en API ventas por día: {e}")
         return jsonify({'fechas': [], 'totales': []})
 
 @dashboard_bp.route('/api/ventas-por-categoria')
 @login_required  
 def api_ventas_por_categoria():
     try:
-        ventas = db.session.query(
-            Producto.categoria,
-            db.func.sum(Venta.precio_total).label('total')
-        ).join(Venta, Producto.id == Venta.producto_id).group_by(
-            Producto.categoria
-        ).all()
-        
-        datos = {
-            'categorias': [venta.categoria for venta in ventas],
-            'totales': [float(venta.total) for venta in ventas]
-        }
-        
-        return jsonify(datos)
-        
+        ventas = db.session.query(Producto.categoria, db.func.sum(Venta.precio_total).label('total')) \
+            .join(Venta, Producto.id == Venta.producto_id).group_by(Producto.categoria).all()
+        return jsonify({
+            'categorias': [v.categoria for v in ventas],
+            'totales': [float(v.total) for v in ventas]
+        })
     except Exception as e:
-        print(f"❌ Error en API ventas por categoría: {e}")
         return jsonify({'categorias': [], 'totales': []})
