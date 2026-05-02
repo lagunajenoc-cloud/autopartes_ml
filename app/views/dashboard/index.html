@@ -84,7 +84,7 @@
         <div class="metric-card-pro metric-ml">
             <div class="metric-header-pro"><div class="metric-icon-pro"><i class="fas fa-brain"></i></div></div>
             <div class="metric-content-pro">
-                <!-- ML Button removed to prevent BuildError until joblib is fixed -->
+                <!-- ✅ ML Button removed to prevent BuildError -->
                 <div class="metric-value-pro" style="font-size: 1.5rem;">En Mantenimiento</div>
                 <div class="metric-label-pro">Machine Learning</div>
                 <div class="metric-trend-pro" style="background:rgba(251,191,36,0.1);color:#d97706;border-color:rgba(251,191,36,0.3);">
@@ -154,13 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/dashboard/api/ventas-por-dia').then(r=>r.json()).then(d=>{
         document.getElementById('ventasChartLoading').style.display='none';
         if(d.fechas.length>0){
-            new Chart(document.getElementById('ventasChart'),{type:'line',data:{labels:d.fechas,datasets:[{label:'Ventas (S/)',data:d.totales,borderColor:'rgb(13,110,253)',fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
+            new Chart(document.getElementById('ventasChart'),{type:'line',{labels:d.fechas,datasets:[{label:'Ventas (S/)',data:d.totales,borderColor:'rgb(13,110,253)',fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
         }
     });
     fetch('/dashboard/api/ventas-por-categoria').then(r=>r.json()).then(d=>{
         document.getElementById('categoriaChartLoading').style.display='none';
         if(d.categorias.length>0){
-            new Chart(document.getElementById('categoriaChart'),{type:'pie',data:{labels:d.categorias,datasets:[{data:d.totales,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']}]},options:{responsive:true,maintainAspectRatio:false}});
+            new Chart(document.getElementById('categoriaChart'),{type:'pie',{labels:d.categorias,datasets:[{data:d.totales,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF']}]},options:{responsive:true,maintainAspectRatio:false}});
         }
     });
 });
