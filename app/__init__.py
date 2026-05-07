@@ -47,6 +47,7 @@ def create_app(config_name='default'):
     
     # Registrar blueprints
     with app.app_context():
+
         # Blueprints existentes
         try:
             from app.controllers.auth_controller import auth_bp
@@ -83,8 +84,9 @@ def create_app(config_name='default'):
         except ImportError as e:
             print(f"Error al registrar dashboard_bp: {e}")
         
-        # ✅ IMPORTANTE: IMPORTAR Y REGISTRAR COMPROBANTES
+        # IMPORTANTE: IMPORTAR Y REGISTRAR COMPROBANTES
         print("🔍 Intentando importar comprobante_controller...")
+        
         try:
             from app.controllers.comprobante_controller import comprobante_bp
             print("✅ Import exitoso de comprobante_controller")
@@ -94,11 +96,16 @@ def create_app(config_name='default'):
             
         except ImportError as e:
             print(f"❌ Error al importar comprobante_controller: {e}")
-        
+
         # Ruta principal
         @app.route('/')
         def index():
             return redirect(url_for('auth.login'))
+
+        # Healthcheck para Railway
+        @app.route('/health')
+        def health():
+            return "ok", 200
     
     # Crear directorio para modelos ML si no existe
     os.makedirs(os.path.join(app.instance_path, 'ml_models'), exist_ok=True)
